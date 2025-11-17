@@ -135,7 +135,7 @@
     Paste English text, pick languages, click Translate. Export or save as a project.
   </p>
 
-  <!-- NEW: Project name -->
+  <!-- Project name -->
   <div class="row">
     <label>
       Project name:
@@ -157,7 +157,6 @@
   <div class="row">
     <button class="btn" id="translateBtn">Translate</button>
     <button class="btn" id="csvBtn">Download CSV</button>
-    <!-- NEW: Save project button -->
     <button class="btn" id="saveProjectBtn">Save project</button>
   </div>
 
@@ -278,7 +277,7 @@ $("#csvBtn").onclick = () => {
   a.click();
 };
 
-// NEW: Save project to Supabase
+// Save project to Supabase
 $("#saveProjectBtn").onclick = async () => {
   const projectName = $("#projectName").value.trim();
   const englishText = $("#en").value.trim();
@@ -292,14 +291,12 @@ $("#saveProjectBtn").onclick = async () => {
     return;
   }
 
-  // Gather languages
   const languages = getSelectedLanguages();
   if (!languages.length) {
     alert("Please select at least one language before saving.");
     return;
   }
 
-  // Gather translations from the table
   const translations = {};
   const rows = [...out.querySelectorAll("tr")].slice(1);
   if (!rows.length) {
@@ -310,7 +307,7 @@ $("#saveProjectBtn").onclick = async () => {
   rows.forEach(tr => {
     const tds = tr.querySelectorAll("td");
     if (tds.length >= 2) {
-      const lang = tds[0].innerText.trim();   // e.g. "zh-TW"
+      const lang = tds[0].innerText.trim();
       const val = tds[1].innerText.trim();
       translations[lang] = val;
     }

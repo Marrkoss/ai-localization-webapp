@@ -1,0 +1,103 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>AI Localization Web App</title>
+<style>
+  body{font-family:system-ui,Arial,sans-serif;max-width:900px;margin:24px auto;padding:0 16px}
+  h1{font-size:22px;margin:0 0 12px}
+  textarea{width:100%;min-height:140px}
+  .row{display:flex;gap:12px;flex-wrap:wrap;margin:8px 0 16px}
+  .btn{padding:10px 14px;border:1px solid #ddd;border-radius:8px;background:#fff;cursor:pointer}
+  .btn:disabled{opacity:.5;cursor:not-allowed}
+  table{width:100%;border-collapse:collapse;margin-top:16px}
+  th,td{border:1px solid #e5e5e5;padding:10px;vertical-align:top}
+  .muted{color:#666;font-size:12px}
+</style>
+</head>
+<body>
+  <h1>AI Localization Web App</h1>
+  <p class="muted">Paste English text, pick languages, click Translate. Exports to CSV.</p>
+
+  <label for="en">English text</label>
+  <textarea id="en" placeholder="Paste English text here..."></textarea>
+
+  <div class="row" id="langs">
+    <label><input type="checkbox" value="zh-TW" checked> zh-TW (Traditional Chinese)</label>
+    <label><input type="checkbox" value="zh-CN" checked> zh-CN (Simplified Chinese)</label>
+    <label><input type="checkbox" value="ja-JP" checked> ja-JP (Japanese)</label>
+    <label><input type="checkbox" value="th-TH" checked> th-TH (Thai)</label>
+    <label><input type="checkbox" value="vi-VN" checked> vi-VN (Vietnamese)</label>
+  </div>
+
+  <div class="row">
+    <button class="btn" id="translateBtn">Translate</button>
+    <button class="btn" id="csvBtn">Download CSV</button>
+  </div>
+
+  <div id="status" class="muted"></div>
+
+  <table id="out">
+    <tr><th>Language</th><th>Translation</th></tr>
+  </table>
+
+<script>
+const $ = s => document.querySelector(s);
+const out = $("#out"), statusEl = $("#status");
+
+function setStatus(msg){ statusEl.textContent = msg || ""; }
+
+$("#translateBtn").onclick = async () => {
+  const text = $("#en").value.trim();
+  if(!text){ alert("Please paste some English text first."); return; }
+
+  const targets = [...document.querySelectorAll('#langs input[type=checkbox]:checked')].map(x=>x.value);
+  if(!targets.length){ alert("Please select at least one language."); return; }
+
+  setStatus("Translating…");
+  $("#translateBtn").disabled = true;
+
+  try {
+    const r = await fetch("/api/translate", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ text, targets })
+    });
+    const j = await r.json();
+    if(!r.ok) throw new Error(j.error || "Server error");
+
+    // render results
+    out.innerHTML = "<tr><th>Language</th><th>Translation</th></tr>";
+    for(const [lang, val] of Object.entries(j.translations || {})){
+      const tr = document.createElement("tr");
+      tr.innerHTML = `<td>${lang}</td><td>${(val || "").replaceAll("<","&lt;")}</td>`;
+      out.appendChild(tr);
+    }
+    setStatus("Done.");
+  } catch (err) {
+    console.error(err);
+    setStatus("Error: " + err.message);
+    alert("Translation failed:\n" + err.message);
+  } finally {
+    $("#translateBtn").disabled = false;
+  }
+};
+
+$("#csvBtn").onclick = () => {
+  const rows = [["Language","Translation"]];
+  [...out.querySelectorAll("tr")].slice(1).forEach(tr=>{
+    const tds = tr.querySelectorAll("td");
+    if (tds.length) rows.push([tds[0].innerText, tds[1].innerText]);
+  });
+  if(rows.length === 1){ alert("No results to export."); return; }
+  const csv = rows.map(r => r.map(s => `"${(s||"").replaceAll('"','""')}"`).join(",")).join("\n");
+  const blob = new Blob([csv], {type:"text/csv"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob);
+  a.download = "translations.csv";
+  a.click();
+};
+</script>
+</body>
+</html>

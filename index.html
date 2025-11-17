@@ -111,6 +111,19 @@
     background: rgba(0, 0, 0, 0.35);
     font-weight: bold;
   }
+
+  input[type="text"] {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.5);
+    background: rgba(0,0,0,0.25);
+    color: white;
+    font-size: 14px;
+  }
+
+  input[type="text"]::placeholder {
+    color: rgba(255,255,255,0.7);
+  }
 </style>
 </head>
 
@@ -119,8 +132,16 @@
 
   <h1>AI Localization Web App</h1>
   <p class="muted">
-    Paste English text, pick languages, click Translate. Export results as CSV.
+    Paste English text, pick languages, click Translate. Export or save as a project.
   </p>
+
+  <!-- NEW: Project name -->
+  <div class="row">
+    <label>
+      Project name:
+      <input type="text" id="projectName" placeholder="e.g. October Bosch LinkedIn captions" />
+    </label>
+  </div>
 
   <label for="en">English text</label>
   <textarea id="en" placeholder="Paste English text here..."></textarea>
@@ -136,6 +157,8 @@
   <div class="row">
     <button class="btn" id="translateBtn">Translate</button>
     <button class="btn" id="csvBtn">Download CSV</button>
+    <!-- NEW: Save project button -->
+    <button class="btn" id="saveProjectBtn">Save project</button>
   </div>
 
   <div id="status" class="muted"></div>
@@ -151,6 +174,11 @@ const out = $("#out"), statusEl = $("#status");
 
 function setStatus(msg){ statusEl.textContent = msg || ""; }
 
+function getSelectedLanguages() {
+  return [...document.querySelectorAll('#langs input[type=checkbox]:checked')]
+    .map(x => x.value);
+}
+
 $("#translateBtn").onclick = async () => {
   const text = $("#en").value.trim();
   if(!text){
@@ -158,8 +186,7 @@ $("#translateBtn").onclick = async () => {
     return;
   }
 
-  const targets = [...document.querySelectorAll('#langs input[type=checkbox]:checked')]
-    .map(x => x.value);
+  const targets = getSelectedLanguages();
   if(!targets.length){
     alert("Please select at least one language.");
     return;
@@ -177,7 +204,6 @@ $("#translateBtn").onclick = async () => {
     const j = await r.json();
     if(!r.ok) throw new Error(j.error || "Server error");
 
-    // header row now has 3 columns: Language / Translation / Copy
     out.innerHTML = "<tr><th>Language</th><th>Translation</th><th>Copy</th></tr>";
 
     for (const [lang, val] of Object.entries(j.translations || {})) {
@@ -201,7 +227,7 @@ $("#translateBtn").onclick = async () => {
   }
 };
 
-// Delegated click handler for copy buttons
+// Copy button handler
 out.addEventListener("click", async (e) => {
   if (!e.target.matches(".copy-btn")) return;
 
@@ -219,7 +245,6 @@ out.addEventListener("click", async (e) => {
       await navigator.clipboard.writeText(text);
       setStatus("Copied translation to clipboard.");
     } else {
-      // Fallback: show prompt so user can manually copy
       window.prompt("Copy translation:", text);
       setStatus("Copy dialog shown.");
     }
@@ -230,6 +255,7 @@ out.addEventListener("click", async (e) => {
   }
 });
 
+// Download CSV
 $("#csvBtn").onclick = () => {
   const rows = [["Language","Translation"]];
   [...out.querySelectorAll("tr")].slice(1).forEach(tr=>{
@@ -250,6 +276,67 @@ $("#csvBtn").onclick = () => {
   a.href = URL.createObjectURL(blob);
   a.download = "translations.csv";
   a.click();
+};
+
+// NEW: Save project to Supabase
+$("#saveProjectBtn").onclick = async () => {
+  const projectName = $("#projectName").value.trim();
+  const englishText = $("#en").value.trim();
+
+  if (!projectName) {
+    alert("Please enter a project name before saving.");
+    return;
+  }
+  if (!englishText) {
+    alert("Please paste English text before saving.");
+    return;
+  }
+
+  // Gather languages
+  const languages = getSelectedLanguages();
+  if (!languages.length) {
+    alert("Please select at least one language before saving.");
+    return;
+  }
+
+  // Gather translations from the table
+  const translations = {};
+  const rows = [...out.querySelectorAll("tr")].slice(1);
+  if (!rows.length) {
+    alert("Please translate first before saving.");
+    return;
+  }
+
+  rows.forEach(tr => {
+    const tds = tr.querySelectorAll("td");
+    if (tds.length >= 2) {
+      const lang = tds[0].innerText.trim();   // e.g. "zh-TW"
+      const val = tds[1].innerText.trim();
+      translations[lang] = val;
+    }
+  });
+
+  setStatus("Saving project…");
+  $("#saveProjectBtn").disabled = true;
+
+  try {
+    const r = await fetch("/api/saveProject", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({ projectName, languages, englishText, translations })
+    });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || "Server error");
+
+    setStatus(`Project saved (ID: ${j.projectId}). Rows inserted: ${j.rowsInserted}.`);
+    alert("Project saved successfully.");
+  } catch (err) {
+    console.error(err);
+    setStatus("Error saving project: " + err.message);
+    alert("Error saving project:\n" + err.message);
+  } finally {
+    $("#saveProjectBtn").disabled = false;
+  }
 };
 </script>
 

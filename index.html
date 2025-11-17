@@ -72,6 +72,11 @@
     font-size: 15px;
   }
 
+  .btn-small {
+    padding: 6px 12px;
+    font-size: 13px;
+  }
+
   .btn:hover:not(:disabled) {
     background: rgba(255, 255, 255, 0.15);
   }
@@ -136,7 +141,7 @@
   <div id="status" class="muted"></div>
 
   <table id="out">
-    <tr><th>Language</th><th>Translation</th></tr>
+    <tr><th>Language</th><th>Translation</th><th>Copy</th></tr>
   </table>
 
 
@@ -148,10 +153,17 @@ function setStatus(msg){ statusEl.textContent = msg || ""; }
 
 $("#translateBtn").onclick = async () => {
   const text = $("#en").value.trim();
-  if(!text){ alert("Please paste some English text first."); return; }
+  if(!text){
+    alert("Please paste some English text first.");
+    return;
+  }
 
-  const targets = [...document.querySelectorAll('#langs input[type=checkbox]:checked')].map(x=>x.value);
-  if(!targets.length){ alert("Please select at least one language."); return; }
+  const targets = [...document.querySelectorAll('#langs input[type=checkbox]:checked')]
+    .map(x => x.value);
+  if(!targets.length){
+    alert("Please select at least one language.");
+    return;
+  }
 
   setStatus("Translating…");
   $("#translateBtn").disabled = true;
@@ -165,12 +177,20 @@ $("#translateBtn").onclick = async () => {
     const j = await r.json();
     if(!r.ok) throw new Error(j.error || "Server error");
 
-    out.innerHTML = "<tr><th>Language</th><th>Translation</th></tr>";
-    for(const [lang, val] of Object.entries(j.translations || {})){
+    // header row now has 3 columns: Language / Translation / Copy
+    out.innerHTML = "<tr><th>Language</th><th>Translation</th><th>Copy</th></tr>";
+
+    for (const [lang, val] of Object.entries(j.translations || {})) {
+      const safe = (val || "").replaceAll("<","&lt;");
       const tr = document.createElement("tr");
-      tr.innerHTML = `<td>${lang}</td><td>${(val || "").replaceAll("<","&lt;")}</td>`;
+      tr.innerHTML = `
+        <td>${lang}</td>
+        <td>${safe}</td>
+        <td><button class="btn btn-small copy-btn">Copy</button></td>
+      `;
       out.appendChild(tr);
     }
+
     setStatus("Done.");
   } catch (err) {
     console.error(err);
@@ -181,14 +201,50 @@ $("#translateBtn").onclick = async () => {
   }
 };
 
+// Delegated click handler for copy buttons
+out.addEventListener("click", async (e) => {
+  if (!e.target.matches(".copy-btn")) return;
+
+  const row = e.target.closest("tr");
+  const cell = row?.querySelector("td:nth-child(2)");
+  const text = cell?.innerText || "";
+
+  if (!text) {
+    setStatus("Nothing to copy.");
+    return;
+  }
+
+  try {
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+      await navigator.clipboard.writeText(text);
+      setStatus("Copied translation to clipboard.");
+    } else {
+      // Fallback: show prompt so user can manually copy
+      window.prompt("Copy translation:", text);
+      setStatus("Copy dialog shown.");
+    }
+  } catch (err) {
+    console.error(err);
+    setStatus("Failed to copy.");
+    alert("Could not copy to clipboard, please copy manually:\n\n" + text);
+  }
+});
+
 $("#csvBtn").onclick = () => {
   const rows = [["Language","Translation"]];
   [...out.querySelectorAll("tr")].slice(1).forEach(tr=>{
     const tds = tr.querySelectorAll("td");
-    if (tds.length) rows.push([tds[0].innerText, tds[1].innerText]);
+    if (tds.length >= 2) {
+      rows.push([tds[0].innerText, tds[1].innerText]);
+    }
   });
-  if(rows.length === 1){ alert("No results to export."); return; }
-  const csv = rows.map(r => r.map(s => `"${(s||"").replaceAll('"','""')}"`).join(",")).join("\n");
+  if(rows.length === 1){
+    alert("No results to export.");
+    return;
+  }
+  const csv = rows
+    .map(r => r.map(s => `"${(s||"").replaceAll('"','""')}"`).join(","))
+    .join("\n");
   const blob = new Blob([csv], {type:"text/csv"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);

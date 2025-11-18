@@ -11,8 +11,7 @@ export default async function handler(req, res) {
       englishText,
       translations,
       status,
-      reviewedBy,
-      markReviewed
+      reviewedBy
     } = req.body || {};
 
     if (!projectId) {
@@ -33,10 +32,10 @@ export default async function handler(req, res) {
       Prefer: "return=representation"
     };
 
-    const effectiveStatus = markReviewed ? "Reviewed" : (status || "Draft");
+    const effectiveStatus = status || "Draft";
     const now = new Date().toISOString();
 
-    // 1) Update the project record
+    // 1) Update the projects table
     const projectPatch = {
       ...(projectName ? { project_name: projectName } : {}),
       ...(Array.isArray(languages) ? { languages } : {}),
@@ -56,7 +55,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Supabase projects update error: " + errTxt });
     }
 
-    // 2) Update project_rows for this project (assuming one row per project)
+    // 2) Update the project_rows table
     const rowPatch = {
       english_text: englishText || null,
       zh_tw: translations?.["zh-TW"] ?? null,
@@ -65,12 +64,18 @@ export default async function handler(req, res) {
       th_th: translations?.["th-TH"] ?? null,
       vi_vn: translations?.["vi-VN"] ?? null,
       status: effectiveStatus,
-      updated_at: now
+      updated_at: now,
+
+      // IMPORTANT: always update reviewed_by, even if empty
+      reviewed_by: reviewedBy ? reviewedBy : null
     };
 
-    if (markReviewed) {
-      rowPatch.reviewed_by = reviewedBy || null;
+    // Set / clear reviewed_at depending on status + reviewer
+    if ((effectiveStatus === "Reviewed" || effectiveStatus === "Approved") && reviewedBy) {
       rowPatch.reviewed_at = now;
+    } else {
+      // if Draft, or no reviewer name, clear the review date
+      rowPatch.reviewed_at = null;
     }
 
     const rowResp = await fetch(`${url}/rest/v1/project_rows?project_id=eq.${projectId}`, {

@@ -162,8 +162,24 @@
 
   <div id="status" class="muted"></div>
 
+  <!-- Translations table -->
   <table id="out">
     <tr><th>Language</th><th>Translation</th><th>Copy</th></tr>
+  </table>
+
+  <!-- My Projects section -->
+  <h2 style="margin-top:40px;">My Projects</h2>
+
+  <button class="btn" id="loadProjectsBtn">Refresh Projects</button>
+
+  <table id="projectsTable" style="margin-top:16px;">
+    <tr>
+      <th>Project Name</th>
+      <th>Status</th>
+      <th>Languages</th>
+      <th>Date</th>
+      <th>Action</th>
+    </tr>
   </table>
 
 
@@ -178,6 +194,9 @@ function getSelectedLanguages() {
     .map(x => x.value);
 }
 
+// ===============================
+// Translate
+// ===============================
 $("#translateBtn").onclick = async () => {
   const text = $("#en").value.trim();
   if(!text){
@@ -226,7 +245,9 @@ $("#translateBtn").onclick = async () => {
   }
 };
 
+// ===============================
 // Copy button handler
+// ===============================
 out.addEventListener("click", async (e) => {
   if (!e.target.matches(".copy-btn")) return;
 
@@ -254,7 +275,9 @@ out.addEventListener("click", async (e) => {
   }
 });
 
+// ===============================
 // Download CSV
+// ===============================
 $("#csvBtn").onclick = () => {
   const rows = [["Language","Translation"]];
   [...out.querySelectorAll("tr")].slice(1).forEach(tr=>{
@@ -277,7 +300,9 @@ $("#csvBtn").onclick = () => {
   a.click();
 };
 
+// ===============================
 // Save project to Supabase
+// ===============================
 $("#saveProjectBtn").onclick = async () => {
   const projectName = $("#projectName").value.trim();
   const englishText = $("#en").value.trim();
@@ -335,6 +360,106 @@ $("#saveProjectBtn").onclick = async () => {
     $("#saveProjectBtn").disabled = false;
   }
 };
+
+// ===============================
+// Load all projects into table
+// ===============================
+$("#loadProjectsBtn").onclick = async () => {
+  setStatus("Loading projects...");
+
+  try {
+    const r = await fetch("/api/getProjects");
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || "Server error");
+
+    const tbl = $("#projectsTable");
+    tbl.innerHTML = `
+      <tr>
+        <th>Project Name</th>
+        <th>Status</th>
+        <th>Languages</th>
+        <th>Date</th>
+        <th>Action</th>
+      </tr>
+    `;
+
+    (j.projects || []).forEach(p => {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${p.project_name}</td>
+        <td>${p.status}</td>
+        <td>${(p.languages || []).join(", ")}</td>
+        <td>${new Date(p.created_at).toLocaleString()}</td>
+        <td><button class="btn btn-small load-project-btn" data-id="${p.id}">Load</button></td>
+      `;
+      tbl.appendChild(tr);
+    });
+
+    setStatus("Projects loaded.");
+  } catch (err) {
+    console.error(err);
+    setStatus("Error loading projects: " + err.message);
+    alert("Error loading projects:\n" + err.message);
+  }
+};
+
+// ===============================
+// Load a single project into UI
+// ===============================
+document.body.addEventListener("click", async (e) => {
+  if (!e.target.matches(".load-project-btn")) return;
+
+  const id = e.target.dataset.id;
+  setStatus("Loading project...");
+
+  try {
+    const r = await fetch(`/api/getProject?id=${id}`);
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || "Server error");
+
+    const proj = j.project;
+    const row = j.rows[0];
+
+    // Fill into UI
+    $("#projectName").value = proj.project_name || "";
+    $("#en").value = row?.english_text || "";
+
+    // Tick languages
+    const langs = proj.languages || [];
+    document.querySelectorAll('#langs input[type=checkbox]').forEach(cb => {
+      cb.checked = langs.includes(cb.value);
+    });
+
+    // Build translations table
+    out.innerHTML = "<tr><th>Language</th><th>Translation</th><th>Copy</th></tr>";
+
+    const langMap = {
+      "zh-TW": row?.zh_tw,
+      "zh-CN": row?.zh_cn,
+      "ja-JP": row?.ja_jp,
+      "th-TH": row?.th_th,
+      "vi-VN": row?.vi_vn
+    };
+
+    for (const [key, value] of Object.entries(langMap)) {
+      if (!langs.includes(key)) continue;
+
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${key}</td>
+        <td>${(value || "").replaceAll("<","&lt;")}</td>
+        <td><button class="btn btn-small copy-btn">Copy</button></td>
+      `;
+      out.appendChild(tr);
+    }
+
+    setStatus("Project loaded.");
+  } catch (err) {
+    console.error(err);
+    setStatus("Error loading project: " + err.message);
+    alert("Error loading project:\n" + err.message);
+  }
+});
 </script>
 
 </body>

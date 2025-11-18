@@ -72,6 +72,15 @@
     font-size: 15px;
   }
 
+ .btn-primary {
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .btn-right {
+    margin-left: auto; /* pushes this button to the far right in the flex row */
+  }
+
   .btn-small {
     padding: 6px 12px;
     font-size: 13px;
@@ -172,11 +181,13 @@
     <label><input type="checkbox" value="vi-VN" checked> vi-VN (Vietnamese)</label>
   </div>
 
-  <div class="row">
-    <button class="btn" id="translateBtn">Translate</button>
-    <button class="btn" id="csvBtn">Download CSV</button>
+    <div class="row">
+    <button class="btn btn-primary" id="translateBtn">TRANSLATE</button>
+
     <button class="btn" id="saveProjectBtn">Save project</button>
     <button class="btn" id="updateProjectBtn">Update project</button>
+
+    <button class="btn btn-right" id="csvBtn">Download CSV</button>
   </div>
 
   <div id="status" class="muted"></div>
@@ -187,7 +198,7 @@
   </table>
 
   <!-- My Projects section -->
-  <h2 style="margin-top:40px;">My Projects</h2>
+  <h2 style="margin-top:40px;">Projects</h2>
 
   <button class="btn" id="loadProjectsBtn">Refresh Projects</button>
 

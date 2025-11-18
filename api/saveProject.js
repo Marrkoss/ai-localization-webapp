@@ -4,7 +4,14 @@ export default async function handler(req, res) {
       return res.status(405).json({ error: "Use POST" });
     }
 
-    const { projectName, languages, englishText, translations, status } = req.body || {};
+    const {
+      projectName,
+      languages,
+      englishText,
+      translations,
+      status,
+      reviewedBy
+    } = req.body || {};
 
     if (!projectName || !englishText || !translations || !languages?.length) {
       return res.status(400).json({ error: "Missing projectName, languages, englishText, or translations" });
@@ -25,6 +32,12 @@ export default async function handler(req, res) {
     };
 
     const effectiveStatus = status || "Draft";
+
+    // If it is already marked as reviewed/approved and we have a reviewer, set reviewed_at now
+    let reviewed_at = null;
+    if (effectiveStatus !== "Draft" && reviewedBy) {
+      reviewed_at = new Date().toISOString();
+    }
 
     // 1) Insert into projects table
     const projResp = await fetch(`${url}/rest/v1/projects`, {
@@ -61,7 +74,9 @@ export default async function handler(req, res) {
         ja_jp: translations["ja-JP"] || null,
         th_th: translations["th-TH"] || null,
         vi_vn: translations["vi-VN"] || null,
-        status: effectiveStatus
+        status: effectiveStatus,
+        reviewed_by: reviewedBy || null,
+        reviewed_at
       }
     ];
 

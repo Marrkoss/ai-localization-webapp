@@ -124,6 +124,15 @@
   input[type="text"]::placeholder {
     color: rgba(255,255,255,0.7);
   }
+
+  select {
+    padding: 8px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255,255,255,0.5);
+    background: rgba(0,0,0,0.25);
+    color: white;
+    font-size: 14px;
+  }
 </style>
 </head>
 
@@ -135,11 +144,20 @@
     Paste English text, pick languages, click Translate. Export or save as a project.
   </p>
 
-  <!-- Project name -->
+  <!-- Project meta -->
   <div class="row">
     <label>
       Project name:
       <input type="text" id="projectName" placeholder="e.g. October Bosch LinkedIn captions" />
+    </label>
+
+    <label>
+      Status:
+      <select id="projectStatus">
+        <option value="Draft">Draft</option>
+        <option value="Reviewed">Reviewed</option>
+        <option value="Approved">Approved</option>
+      </select>
     </label>
   </div>
 
@@ -158,13 +176,14 @@
     <button class="btn" id="translateBtn">Translate</button>
     <button class="btn" id="csvBtn">Download CSV</button>
     <button class="btn" id="saveProjectBtn">Save project</button>
+    <button class="btn" id="updateProjectBtn">Update project</button>
   </div>
 
   <div id="status" class="muted"></div>
 
   <!-- Translations table -->
   <table id="out">
-    <tr><th>Language</th><th>Translation</th><th>Copy</th></tr>
+    <tr><th>Language</th><th>Translation (editable)</th><th>Copy</th></tr>
   </table>
 
   <!-- My Projects section -->
@@ -184,6 +203,8 @@
 
 
 <script>
+let currentProjectId = null;
+
 const $ = s => document.querySelector(s);
 const out = $("#out"), statusEl = $("#status");
 
@@ -222,14 +243,14 @@ $("#translateBtn").onclick = async () => {
     const j = await r.json();
     if(!r.ok) throw new Error(j.error || "Server error");
 
-    out.innerHTML = "<tr><th>Language</th><th>Translation</th><th>Copy</th></tr>";
+    out.innerHTML = "<tr><th>Language</th><th>Translation (editable)</th><th>Copy</th></tr>";
 
     for (const [lang, val] of Object.entries(j.translations || {})) {
       const safe = (val || "").replaceAll("<","&lt;");
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${lang}</td>
-        <td>${safe}</td>
+        <td contenteditable="true">${safe}</td>
         <td><button class="btn btn-small copy-btn">Copy</button></td>
       `;
       out.appendChild(tr);
@@ -300,12 +321,28 @@ $("#csvBtn").onclick = () => {
   a.click();
 };
 
+// Helper: collect translations from table
+function collectTranslationsFromTable() {
+  const translations = {};
+  const rows = [...out.querySelectorAll("tr")].slice(1);
+  rows.forEach(tr => {
+    const tds = tr.querySelectorAll("td");
+    if (tds.length >= 2) {
+      const lang = tds[0].innerText.trim();
+      const val = tds[1].innerText.trim();
+      translations[lang] = val;
+    }
+  });
+  return translations;
+}
+
 // ===============================
 // Save project to Supabase
 // ===============================
 $("#saveProjectBtn").onclick = async () => {
   const projectName = $("#projectName").value.trim();
   const englishText = $("#en").value.trim();
+  const statusVal = $("#projectStatus").value || "Draft";
 
   if (!projectName) {
     alert("Please enter a project name before saving.");
@@ -322,21 +359,11 @@ $("#saveProjectBtn").onclick = async () => {
     return;
   }
 
-  const translations = {};
-  const rows = [...out.querySelectorAll("tr")].slice(1);
-  if (!rows.length) {
+  const translations = collectTranslationsFromTable();
+  if (Object.keys(translations).length === 0) {
     alert("Please translate first before saving.");
     return;
   }
-
-  rows.forEach(tr => {
-    const tds = tr.querySelectorAll("td");
-    if (tds.length >= 2) {
-      const lang = tds[0].innerText.trim();
-      const val = tds[1].innerText.trim();
-      translations[lang] = val;
-    }
-  });
 
   setStatus("Saving project…");
   $("#saveProjectBtn").disabled = true;
@@ -345,11 +372,12 @@ $("#saveProjectBtn").onclick = async () => {
     const r = await fetch("/api/saveProject", {
       method: "POST",
       headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ projectName, languages, englishText, translations })
+      body: JSON.stringify({ projectName, languages, englishText, translations, status: statusVal })
     });
     const j = await r.json();
     if (!r.ok) throw new Error(j.error || "Server error");
 
+    currentProjectId = j.projectId;
     setStatus(`Project saved (ID: ${j.projectId}). Rows inserted: ${j.rowsInserted}.`);
     alert("Project saved successfully.");
   } catch (err) {
@@ -358,6 +386,60 @@ $("#saveProjectBtn").onclick = async () => {
     alert("Error saving project:\n" + err.message);
   } finally {
     $("#saveProjectBtn").disabled = false;
+  }
+};
+
+// ===============================
+// Update existing project
+// ===============================
+$("#updateProjectBtn").onclick = async () => {
+  if (!currentProjectId) {
+    alert("No project loaded. Please load a project from 'My Projects' or save a new one first.");
+    return;
+  }
+
+  const projectName = $("#projectName").value.trim();
+  const englishText = $("#en").value.trim();
+  const statusVal = $("#projectStatus").value || "Draft";
+  const languages = getSelectedLanguages();
+  const translations = collectTranslationsFromTable();
+
+  if (!projectName) {
+    alert("Project name cannot be empty.");
+    return;
+  }
+  if (!englishText) {
+    alert("English text cannot be empty.");
+    return;
+  }
+
+  setStatus("Updating project…");
+  $("#updateProjectBtn").disabled = true;
+
+  try {
+    const r = await fetch("/api/updateProject", {
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        projectId: currentProjectId,
+        projectName,
+        languages,
+        englishText,
+        translations,
+        status: statusVal
+      })
+    });
+    const j = await r.json();
+    if (!r.ok) throw new Error(j.error || "Server error");
+
+    setStatus("Project updated.");
+    alert("Project updated successfully.");
+  } catch (err) {
+    console.error(err);
+    setStatus("Error updating project: " + err.message);
+    alert("Error updating project:\n" + err.message);
+  } finally {
+    $("#updateProjectBtn").disabled = false;
   }
 };
 
@@ -420,18 +502,18 @@ document.body.addEventListener("click", async (e) => {
     const proj = j.project;
     const row = j.rows[0];
 
-    // Fill into UI
+    currentProjectId = proj.id;
+
     $("#projectName").value = proj.project_name || "";
+    $("#projectStatus").value = proj.status || "Draft";
     $("#en").value = row?.english_text || "";
 
-    // Tick languages
     const langs = proj.languages || [];
     document.querySelectorAll('#langs input[type=checkbox]').forEach(cb => {
       cb.checked = langs.includes(cb.value);
     });
 
-    // Build translations table
-    out.innerHTML = "<tr><th>Language</th><th>Translation</th><th>Copy</th></tr>";
+    out.innerHTML = "<tr><th>Language</th><th>Translation (editable)</th><th>Copy</th></tr>";
 
     const langMap = {
       "zh-TW": row?.zh_tw,
@@ -447,7 +529,7 @@ document.body.addEventListener("click", async (e) => {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${key}</td>
-        <td>${(value || "").replaceAll("<","&lt;")}</td>
+        <td contenteditable="true">${(value || "").replaceAll("<","&lt;")}</td>
         <td><button class="btn btn-small copy-btn">Copy</button></td>
       `;
       out.appendChild(tr);

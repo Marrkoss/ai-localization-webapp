@@ -24,7 +24,37 @@
 
   h1 {
     font-size: 26px;
-    margin: 0 0 12px;
+    margin: 0 0 8px;
+  }
+
+  .muted {
+    color: rgba(255,255,255,0.75);
+    font-size: 13px;
+    margin: 0 0 16px;
+  }
+
+  /* Tabs */
+  .tabs {
+    display: inline-flex;
+    background: rgba(0,0,0,0.25);
+    border-radius: 999px;
+    padding: 4px;
+    margin-bottom: 20px;
+  }
+
+  .tab-btn {
+    border: none;
+    background: transparent;
+    color: rgba(255,255,255,0.8);
+    padding: 8px 18px;
+    border-radius: 999px;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .tab-btn.tab-active {
+    background: rgba(255,255,255,0.18);
+    color: white;
   }
 
   textarea {
@@ -90,9 +120,9 @@
     background: rgba(255,255,255,0.15);
   }
 
-  .muted {
-    color: rgba(255,255,255,0.75);
-    font-size: 13px;
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   table {
@@ -115,80 +145,95 @@
     background: rgba(0,0,0,0.35);
     font-weight: bold;
   }
+
+  /* Sections */
+  #translateSection, #projectsSection {
+    margin-top: 12px;
+  }
 </style>
 </head>
 
 <body>
 
 <h1>AI Localization Web App</h1>
-<p class="muted">Paste English text, translate, save, and load previous projects.</p>
+<p class="muted">Translate marketing copy, save projects, and manage previous work.</p>
 
-<!-- PROJECT META -->
-<div class="row">
-  <label>
-    Project name:
-    <input type="text" id="projectName" placeholder="E.g. Bosch October captions">
-  </label>
-
-  <label>
-    Status:
-    <select id="projectStatus">
-      <option value="Draft">Draft</option>
-      <option value="Reviewed">Reviewed</option>
-      <option value="Approved">Approved</option>
-    </select>
-  </label>
-
-  <label>
-    Reviewed by:
-    <input type="text" id="reviewedBy" placeholder="Reviewer name">
-  </label>
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn tab-active" id="tabTranslate">Translate</button>
+  <button class="tab-btn" id="tabProjects">Projects</button>
 </div>
 
-<p id="reviewedInfo" class="muted"></p>
+<!-- =============== TRANSLATE TAB =============== -->
+<div id="translateSection">
+  <!-- PROJECT META -->
+  <div class="row">
+    <label>
+      Project name:
+      <input type="text" id="projectName" placeholder="E.g. Bosch October captions">
+    </label>
 
-<label>English text</label>
-<textarea id="en" placeholder="Paste English text here..."></textarea>
+    <label>
+      Status:
+      <select id="projectStatus">
+        <option value="Draft">Draft</option>
+        <option value="Reviewed">Reviewed</option>
+        <option value="Approved">Approved</option>
+      </select>
+    </label>
 
-<div class="row" id="langs">
-  <label><input type="checkbox" value="zh-TW" checked> zh-TW</label>
-  <label><input type="checkbox" value="zh-CN" checked> zh-CN</label>
-  <label><input type="checkbox" value="ja-JP" checked> ja-JP</label>
-  <label><input type="checkbox" value="th-TH" checked> th-TH</label>
-  <label><input type="checkbox" value="vi-VN" checked> vi-VN</label>
+    <label>
+      Reviewed by:
+      <input type="text" id="reviewedBy" placeholder="Reviewer name">
+    </label>
+  </div>
+
+  <p id="reviewedInfo" class="muted"></p>
+
+  <label>English text</label>
+  <textarea id="en" placeholder="Paste English text here..."></textarea>
+
+  <div class="row" id="langs">
+    <label><input type="checkbox" value="zh-TW" checked> zh-TW</label>
+    <label><input type="checkbox" value="zh-CN" checked> zh-CN</label>
+    <label><input type="checkbox" value="ja-JP" checked> ja-JP</label>
+    <label><input type="checkbox" value="th-TH" checked> th-TH</label>
+    <label><input type="checkbox" value="vi-VN" checked> vi-VN</label>
+  </div>
+
+  <div class="row">
+    <button class="btn btn-primary" id="translateBtn">TRANSLATE</button>
+
+    <button class="btn" id="saveProjectBtn">Save project</button>
+    <button class="btn" id="updateProjectBtn">Update project</button>
+
+    <button class="btn btn-right" id="csvBtn">Download CSV</button>
+  </div>
+
+  <div id="status" class="muted"></div>
+
+  <!-- TRANSLATION TABLE -->
+  <table id="out">
+    <tr><th>Language</th><th>Translation (editable)</th><th>Copy</th></tr>
+  </table>
 </div>
 
-<div class="row">
-  <button class="btn btn-primary" id="translateBtn">TRANSLATE</button>
+<!-- =============== PROJECTS TAB =============== -->
+<div id="projectsSection" style="display:none;">
+  <h2>Projects</h2>
+  <button class="btn" id="loadProjectsBtn">Refresh Projects</button>
 
-  <button class="btn" id="saveProjectBtn">Save project</button>
-  <button class="btn" id="updateProjectBtn">Update project</button>
-
-  <button class="btn btn-right" id="csvBtn">Download CSV</button>
+  <table id="projectsTable" style="margin-top:16px;">
+    <tr>
+      <th>Project Name</th>
+      <th>Status</th>
+      <th>Languages</th>
+      <th>Date</th>
+      <th>Action</th>
+    </tr>
+  </table>
 </div>
 
-<div id="status" class="muted"></div>
-
-<!-- TRANSLATION TABLE -->
-<table id="out">
-  <tr><th>Language</th><th>Translation (editable)</th><th>Copy</th></tr>
-</table>
-
-<!-- PROJECT LIST -->
-<h2 style="margin-top:40px;">Projects</h2>
-<button class="btn" id="loadProjectsBtn">Refresh Projects</button>
-
-<table id="projectsTable" style="margin-top:16px;">
-  <tr>
-    <th>Project Name</th>
-    <th>Status</th>
-    <th>Languages</th>
-    <th>Date</th>
-    <th>Action</th>
-  </tr>
-</table>
-
-<!-- JAVASCRIPT -->
 <script>
 let currentProjectId = null;
 
@@ -196,15 +241,39 @@ const $ = s => document.querySelector(s);
 const out = $("#out");
 const statusEl = $("#status");
 
-function setStatus(msg){ statusEl.textContent = msg || ""; }
+const tabTranslate = $("#tabTranslate");
+const tabProjects  = $("#tabProjects");
+const translateSection = $("#translateSection");
+const projectsSection  = $("#projectsSection");
 
+function setStatus(msg){ statusEl.textContent = msg || ""; }
 function getSelectedLanguages() {
   return [...document.querySelectorAll('#langs input[type=checkbox]:checked')]
     .map(x => x.value);
 }
 
 /* =====================
-      TRANSLATE
+       TABS LOGIC
+===================== */
+function showTranslateTab() {
+  tabTranslate.classList.add("tab-active");
+  tabProjects.classList.remove("tab-active");
+  translateSection.style.display = "";
+  projectsSection.style.display = "none";
+}
+
+function showProjectsTab() {
+  tabTranslate.classList.remove("tab-active");
+  tabProjects.classList.add("tab-active");
+  translateSection.style.display = "none";
+  projectsSection.style.display = "";
+}
+
+tabTranslate.onclick = showTranslateTab;
+tabProjects.onclick  = showProjectsTab;
+
+/* =====================
+       TRANSLATE
 ===================== */
 $("#translateBtn").onclick = async () => {
   const text = $("#en").value.trim();
@@ -224,11 +293,13 @@ $("#translateBtn").onclick = async () => {
     });
 
     const j = await r.json();
-    if (!r.ok) throw new Error(j.error);
+    if (!r.ok) throw new Error(j.error || "Translation failed");
 
     out.innerHTML = `
       <tr>
-        <th>Language</th><th>Translation (editable)</th><th>Copy</th>
+        <th>Language</th>
+        <th>Translation (editable)</th>
+        <th>Copy</th>
       </tr>`;
 
     for (const [lang,val] of Object.entries(j.translations||{})) {
@@ -251,7 +322,7 @@ $("#translateBtn").onclick = async () => {
 };
 
 /* =====================
-        COPY
+          COPY
 ===================== */
 out.addEventListener("click", async e => {
   if (!e.target.matches(".copy-btn")) return;
@@ -262,7 +333,7 @@ out.addEventListener("click", async e => {
 });
 
 /* =====================
-      CSV EXPORT
+       CSV EXPORT
 ===================== */
 $("#csvBtn").onclick = () => {
   const rows = [["Language","Translation"]];
@@ -270,6 +341,10 @@ $("#csvBtn").onclick = () => {
     const t = tr.querySelectorAll("td");
     rows.push([t[0].innerText, t[1].innerText]);
   });
+  if (rows.length === 1) {
+    alert("No translations to export.");
+    return;
+  }
   const csv = rows.map(r => r.map(s=>`"${s.replaceAll('"','""')}"`).join(",")).join("\n");
   const blob = new Blob([csv],{type:"text/csv"});
   const a = document.createElement("a");
@@ -279,7 +354,19 @@ $("#csvBtn").onclick = () => {
 };
 
 /* =====================
-    SAVE PROJECT
+     HELPERS
+===================== */
+function collectTranslations() {
+  const obj = {};
+  [...out.querySelectorAll("tr")].slice(1).forEach(tr => {
+    const t = tr.querySelectorAll("td");
+    obj[t[0].innerText] = t[1].innerText;
+  });
+  return obj;
+}
+
+/* =====================
+      SAVE PROJECT
 ===================== */
 $("#saveProjectBtn").onclick = async () => {
   const name  = $("#projectName").value.trim();
@@ -288,10 +375,14 @@ $("#saveProjectBtn").onclick = async () => {
   const reviewedBy = $("#reviewedBy").value.trim();
   const langs = getSelectedLanguages();
 
-  if (!name) return alert("Enter project name.");
+  if (!name)  return alert("Enter project name.");
   if (!enTxt) return alert("Enter English text.");
+  if (!langs.length) return alert("Select at least one language.");
 
   const translations = collectTranslations();
+  if (Object.keys(translations).length === 0) {
+    return alert("Translate first before saving.");
+  }
 
   try {
     const r = await fetch("/api/saveProject", {
@@ -318,10 +409,10 @@ $("#saveProjectBtn").onclick = async () => {
 };
 
 /* =====================
-    UPDATE PROJECT
+     UPDATE PROJECT
 ===================== */
 $("#updateProjectBtn").onclick = async () => {
-  if (!currentProjectId) return alert("Load a project first.");
+  if (!currentProjectId) return alert("Load a project or save a new one first.");
 
   const name  = $("#projectName").value.trim();
   const enTxt = $("#en").value.trim();
@@ -329,6 +420,9 @@ $("#updateProjectBtn").onclick = async () => {
   const reviewedBy = $("#reviewedBy").value.trim();
   const langs = getSelectedLanguages();
   const translations = collectTranslations();
+
+  if (!name)  return alert("Project name cannot be empty.");
+  if (!enTxt) return alert("English text cannot be empty.");
 
   try {
     const r = await fetch("/api/updateProject", {
@@ -354,17 +448,8 @@ $("#updateProjectBtn").onclick = async () => {
   }
 };
 
-function collectTranslations() {
-  const obj = {};
-  [...out.querySelectorAll("tr")].slice(1).forEach(tr => {
-    const t = tr.querySelectorAll("td");
-    obj[t[0].innerText] = t[1].innerText;
-  });
-  return obj;
-}
-
 /* =====================
-    LOAD PROJECT LIST
+   LOAD PROJECT LIST
 ===================== */
 $("#loadProjectsBtn").onclick = async () => {
   const tbl = $("#projectsTable");
@@ -387,7 +472,7 @@ $("#loadProjectsBtn").onclick = async () => {
       tr.innerHTML = `
         <td>${p.project_name}</td>
         <td>${p.status}</td>
-        <td>${p.languages.join(", ")}</td>
+        <td>${(p.languages||[]).join(", ")}</td>
         <td>${new Date(p.created_at).toLocaleString()}</td>
         <td><button class="btn btn-small load-btn" data-id="${p.id}">Load</button></td>`;
       tbl.appendChild(tr);
@@ -398,7 +483,7 @@ $("#loadProjectsBtn").onclick = async () => {
 };
 
 /* =====================
-    LOAD SINGLE PROJECT
+   LOAD SINGLE PROJECT
 ===================== */
 document.body.addEventListener("click", async (e) => {
   if (!e.target.matches(".load-btn")) return;
@@ -415,24 +500,25 @@ document.body.addEventListener("click", async (e) => {
 
     currentProjectId = proj.id;
 
-    $("#projectName").value = proj.project_name;
-    $("#projectStatus").value = proj.status;
-    $("#en").value = row.english_text || "";
-    $("#reviewedBy").value = row.reviewed_by || "";
+    $("#projectName").value   = proj.project_name || "";
+    $("#projectStatus").value = proj.status || "Draft";
+    $("#en").value            = row?.english_text || "";
+    $("#reviewedBy").value    = row?.reviewed_by || "";
 
-    if (row.reviewed_at) {
-      $("#reviewedInfo").textContent =
-        "Reviewed on: " + new Date(row.reviewed_at).toLocaleString();
+    const infoEl = $("#reviewedInfo");
+    if (row?.reviewed_at) {
+      infoEl.textContent = "Reviewed on: " + new Date(row.reviewed_at).toLocaleString();
     } else {
-      $("#reviewedInfo").textContent = "";
+      infoEl.textContent = "";
     }
 
-    // languages
-    document.querySelectorAll('#langs input').forEach(cb => {
-      cb.checked = proj.languages.includes(cb.value);
+    // Update language checkboxes
+    const langs = proj.languages || [];
+    document.querySelectorAll('#langs input[type=checkbox]').forEach(cb => {
+      cb.checked = langs.includes(cb.value);
     });
 
-    // populate translations table
+    // Fill translations table
     out.innerHTML = `
       <tr>
         <th>Language</th>
@@ -441,14 +527,14 @@ document.body.addEventListener("click", async (e) => {
       </tr>`;
 
     const mapping = {
-      "zh-TW": row.zh_tw,
-      "zh-CN": row.zh_cn,
-      "ja-JP": row.ja_jp,
-      "th-TH": row.th_th,
-      "vi-VN": row.vi_vn
+      "zh-TW": row?.zh_tw,
+      "zh-CN": row?.zh_cn,
+      "ja-JP": row?.ja_jp,
+      "th-TH": row?.th_th,
+      "vi-VN": row?.vi_vn
     };
 
-    for (const lang of proj.languages) {
+    for (const lang of langs) {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${lang}</td>
@@ -456,6 +542,9 @@ document.body.addEventListener("click", async (e) => {
         <td><button class="btn btn-small copy-btn">Copy</button></td>`;
       out.appendChild(tr);
     }
+
+    // After loading a project, auto-switch to Translate tab
+    showTranslateTab();
 
   } catch (err) {
     alert("Error loading project:\n" + err.message);

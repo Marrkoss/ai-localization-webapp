@@ -72,13 +72,13 @@
     font-size: 15px;
   }
 
- .btn-primary {
+  .btn-primary {
     font-weight: 700;
     text-transform: uppercase;
   }
 
   .btn-right {
-    margin-left: auto; /* pushes this button to the far right in the flex row */
+    margin-left: auto;
   }
 
   .btn-small {
@@ -168,7 +168,19 @@
         <option value="Approved">Approved</option>
       </select>
     </label>
+
+    <label>
+      <input type="checkbox" id="markReviewedCheckbox" />
+      Mark as reviewed now
+    </label>
+
+    <label>
+      Reviewed by:
+      <input type="text" id="reviewedBy" placeholder="Reviewer name" />
+    </label>
   </div>
+
+  <p id="reviewedInfo" class="muted"></p>
 
   <label for="en">English text</label>
   <textarea id="en" placeholder="Paste English text here..."></textarea>
@@ -181,7 +193,7 @@
     <label><input type="checkbox" value="vi-VN" checked> vi-VN (Vietnamese)</label>
   </div>
 
-    <div class="row">
+  <div class="row">
     <button class="btn btn-primary" id="translateBtn">TRANSLATE</button>
 
     <button class="btn" id="saveProjectBtn">Save project</button>
@@ -197,7 +209,7 @@
     <tr><th>Language</th><th>Translation (editable)</th><th>Copy</th></tr>
   </table>
 
-  <!-- My Projects section -->
+  <!-- Projects section -->
   <h2 style="margin-top:40px;">Projects</h2>
 
   <button class="btn" id="loadProjectsBtn">Refresh Projects</button>
@@ -354,6 +366,7 @@ $("#saveProjectBtn").onclick = async () => {
   const projectName = $("#projectName").value.trim();
   const englishText = $("#en").value.trim();
   const statusVal = $("#projectStatus").value || "Draft";
+  const reviewedBy = $("#reviewedBy").value.trim();
 
   if (!projectName) {
     alert("Please enter a project name before saving.");
@@ -383,7 +396,14 @@ $("#saveProjectBtn").onclick = async () => {
     const r = await fetch("/api/saveProject", {
       method: "POST",
       headers: {"Content-Type":"application/json"},
-      body: JSON.stringify({ projectName, languages, englishText, translations, status: statusVal })
+      body: JSON.stringify({
+        projectName,
+        languages,
+        englishText,
+        translations,
+        status: statusVal,
+        reviewedBy
+      })
     });
     const j = await r.json();
     if (!r.ok) throw new Error(j.error || "Server error");
@@ -405,7 +425,7 @@ $("#saveProjectBtn").onclick = async () => {
 // ===============================
 $("#updateProjectBtn").onclick = async () => {
   if (!currentProjectId) {
-    alert("No project loaded. Please load a project from 'My Projects' or save a new one first.");
+    alert("No project loaded. Please load a project from 'Projects' or save a new one first.");
     return;
   }
 
@@ -414,6 +434,8 @@ $("#updateProjectBtn").onclick = async () => {
   const statusVal = $("#projectStatus").value || "Draft";
   const languages = getSelectedLanguages();
   const translations = collectTranslationsFromTable();
+  const reviewedBy = $("#reviewedBy").value.trim();
+  const markReviewed = $("#markReviewedCheckbox").checked;
 
   if (!projectName) {
     alert("Project name cannot be empty.");
@@ -437,7 +459,9 @@ $("#updateProjectBtn").onclick = async () => {
         languages,
         englishText,
         translations,
-        status: statusVal
+        status: statusVal,
+        reviewedBy,
+        markReviewed
       })
     });
     const j = await r.json();
@@ -524,6 +548,18 @@ document.body.addEventListener("click", async (e) => {
       cb.checked = langs.includes(cb.value);
     });
 
+    // Reviewed info
+    $("#reviewedBy").value = row?.reviewed_by || "";
+    $("#markReviewedCheckbox").checked = proj.status === "Reviewed" || proj.status === "Approved";
+
+    const reviewedInfoEl = $("#reviewedInfo");
+    if (row?.reviewed_at) {
+      reviewedInfoEl.textContent = "Reviewed on: " + new Date(row.reviewed_at).toLocaleString();
+    } else {
+      reviewedInfoEl.textContent = "";
+    }
+
+    // Build translations table
     out.innerHTML = "<tr><th>Language</th><th>Translation (editable)</th><th>Copy</th></tr>";
 
     const langMap = {

@@ -4,7 +4,7 @@ export default async function handler(req, res) {
       return res.status(405).json({ error: "Use POST" });
     }
 
-    const { projectName, languages, englishText, translations } = req.body || {};
+    const { projectName, languages, englishText, translations, status } = req.body || {};
 
     if (!projectName || !englishText || !translations || !languages?.length) {
       return res.status(400).json({ error: "Missing projectName, languages, englishText, or translations" });
@@ -24,6 +24,8 @@ export default async function handler(req, res) {
       Prefer: "return=representation"
     };
 
+    const effectiveStatus = status || "Draft";
+
     // 1) Insert into projects table
     const projResp = await fetch(`${url}/rest/v1/projects`, {
       method: "POST",
@@ -32,7 +34,7 @@ export default async function handler(req, res) {
         {
           project_name: projectName,
           languages: languages,
-          status: "Draft"
+          status: effectiveStatus
         }
       ])
     });
@@ -59,7 +61,7 @@ export default async function handler(req, res) {
         ja_jp: translations["ja-JP"] || null,
         th_th: translations["th-TH"] || null,
         vi_vn: translations["vi-VN"] || null,
-        status: "Draft"
+        status: effectiveStatus
       }
     ];
 

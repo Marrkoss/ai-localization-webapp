@@ -4,7 +4,16 @@ export default async function handler(req, res) {
       return res.status(405).json({ error: "Use POST" });
     }
 
-    const { projectId, projectName, languages, englishText, translations, status } = req.body || {};
+    const {
+      projectId,
+      projectName,
+      languages,
+      englishText,
+      translations,
+      status,
+      reviewedBy,
+      markReviewed
+    } = req.body || {};
 
     if (!projectId) {
       return res.status(400).json({ error: "Missing projectId" });
@@ -24,14 +33,15 @@ export default async function handler(req, res) {
       Prefer: "return=representation"
     };
 
-    const effectiveStatus = status || "Draft";
+    const effectiveStatus = markReviewed ? "Reviewed" : (status || "Draft");
+    const now = new Date().toISOString();
 
     // 1) Update the project record
     const projectPatch = {
       ...(projectName ? { project_name: projectName } : {}),
       ...(Array.isArray(languages) ? { languages } : {}),
       status: effectiveStatus,
-      updated_at: new Date().toISOString()
+      updated_at: now
     };
 
     const projResp = await fetch(`${url}/rest/v1/projects?id=eq.${projectId}`, {
@@ -46,7 +56,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Supabase projects update error: " + errTxt });
     }
 
-    // 2) Update project_rows for this project (we assume one row per project for now)
+    // 2) Update project_rows for this project (assuming one row per project)
     const rowPatch = {
       english_text: englishText || null,
       zh_tw: translations?.["zh-TW"] ?? null,
@@ -55,8 +65,13 @@ export default async function handler(req, res) {
       th_th: translations?.["th-TH"] ?? null,
       vi_vn: translations?.["vi-VN"] ?? null,
       status: effectiveStatus,
-      updated_at: new Date().toISOString()
+      updated_at: now
     };
+
+    if (markReviewed) {
+      rowPatch.reviewed_by = reviewedBy || null;
+      rowPatch.reviewed_at = now;
+    }
 
     const rowResp = await fetch(`${url}/rest/v1/project_rows?project_id=eq.${projectId}`, {
       method: "PATCH",

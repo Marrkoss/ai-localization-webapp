@@ -13,7 +13,14 @@ export default async function handler(req, res) {
       Authorization: `Bearer ${serviceKey}`
     };
 
-    const resp = await fetch(`${url}/rest/v1/projects?select=*`, {
+    const { ownerId } = req.query || {};
+
+    let endpoint = `${url}/rest/v1/projects?select=*`;
+    if (ownerId) {
+      endpoint += `&owner_id=eq.${ownerId}`;
+    }
+
+    const resp = await fetch(endpoint, {
       method: "GET",
       headers
     });
@@ -24,8 +31,6 @@ export default async function handler(req, res) {
     }
 
     const data = await resp.json();
-
-    // newest first
     data.sort((a, b) => new Date(b.created_at) - new Date(a.created_at));
 
     return res.status(200).json({ projects: data });

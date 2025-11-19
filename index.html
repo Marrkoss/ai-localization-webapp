@@ -54,6 +54,9 @@
 
   #authStatus {
     min-width: 180px;
+    margin-left: auto;
+    text-align: right;
+    font-weight: 500;
   }
 
   /* Tabs */
@@ -196,7 +199,7 @@
   <button class="tab-btn" id="tabProjects">Projects</button>
 </div>
 
-<!-- TRANSLATE TAB -->
+<!-- =============== TRANSLATE TAB =============== -->
 <div id="translateSection">
   <div class="row">
     <label>
@@ -248,7 +251,7 @@
   </table>
 </div>
 
-<!-- PROJECTS TAB -->
+<!-- =============== PROJECTS TAB =============== -->
 <div id="projectsSection" style="display:none;">
   <h2>Projects</h2>
   <button class="btn" id="loadProjectsBtn">Load Projects</button>
@@ -271,12 +274,12 @@
    SUPABASE AUTH SETUP
 ===================== */
 const SUPABASE_URL = "https://dtctdmsdeurllyflwjwk.supabase.co";           // e.g. https://xxxx.supabase.co
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0Y3RkbXNkZXVybGx5Zmx3andrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzNjM3NzgsImV4cCI6MjA3ODkzOTc3OH0.VgLKd9iSIzTEtHwFkaD-5x1QQE6ir8g4CasmgvTtCGI"; // anon public key
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0Y3RkbXNkZXVybGx5Zmx3andrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzNjM3NzgsImV4cCI6MjA3ODkzOTc3OH0.VgLKd9iSIzTEtHwFkaD-5x1QQE6ir8g4CasmgvTtCGI"; // publishable / anon key
 
-const { createClient } = supabase;
-const supa = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
+let currentProjectId = null;
 
 /* =====================
    BASIC DOM SHORTCUTS
@@ -290,12 +293,12 @@ const tabProjects      = $("#tabProjects");
 const translateSection = $("#translateSection");
 const projectsSection  = $("#projectsSection");
 
-const authEmail   = $("#authEmail");
-const authPassword= $("#authPassword");
-const signupBtn   = $("#signupBtn");
-const loginBtn    = $("#loginBtn");
-const logoutBtn   = $("#logoutBtn");
-const authStatus  = $("#authStatus");
+const authEmail    = $("#authEmail");
+const authPassword = $("#authPassword");
+const signupBtn    = $("#signupBtn");
+const loginBtn     = $("#loginBtn");
+const logoutBtn    = $("#logoutBtn");
+const authStatus   = $("#authStatus");
 
 function setStatus(msg){ statusEl.textContent = msg || ""; }
 
@@ -305,7 +308,20 @@ function getSelectedLanguages() {
 }
 
 /* =====================
-      TABS LOGIC
+   DISPLAY NAME HELPER
+===================== */
+function getDisplayNameFromEmail(email) {
+  if (!email) return "User";
+  const raw = email.split("@")[0];                     // "marcus.cheong"
+  const parts = raw.split(/[.\-_]/g).filter(Boolean);  // ["marcus","cheong"]
+  const pretty = parts
+    .map(p => p.charAt(0).toUpperCase() + p.slice(1))
+    .join(" ");                                        // "Marcus Cheong"
+  return pretty || email;
+}
+
+/* =====================
+       TABS LOGIC
 ===================== */
 function showTranslateTab() {
   tabTranslate.classList.add("tab-active");
@@ -332,13 +348,19 @@ async function refreshUser() {
   if (error || !data.user) {
     currentUser = null;
     authStatus.textContent = "Not logged in";
+    authStatus.title = "";
     logoutBtn.style.display = "none";
     loginBtn.style.display  = "";
     signupBtn.style.display = "";
     return;
   }
   currentUser = data.user;
-  authStatus.textContent = "Logged in as " + (currentUser.email || "");
+  const email = currentUser.email || "";
+  const displayName = getDisplayNameFromEmail(email);
+
+  authStatus.textContent = "Hi, " + displayName;
+  authStatus.title = email;
+
   logoutBtn.style.display = "";
   loginBtn.style.display  = "none";
   signupBtn.style.display = "none";
@@ -502,7 +524,7 @@ $("#saveProjectBtn").onclick = async () => {
         translations,
         status,
         reviewedBy,
-        ownerId: currentUser.id   // IMPORTANT
+        ownerId: currentUser.id
       })
     });
 
@@ -519,8 +541,6 @@ $("#saveProjectBtn").onclick = async () => {
 /* =====================
      UPDATE PROJECT
 ===================== */
-let currentProjectId = null;
-
 $("#updateProjectBtn").onclick = async () => {
   if (!currentProjectId) return alert("Load a project or save a new one first.");
   if (!currentUser) return alert("Please log in.");
@@ -656,6 +676,7 @@ document.body.addEventListener("click", async (e) => {
       out.appendChild(tr);
     }
 
+    // Switch back to Translate tab when a project is loaded
     showTranslateTab();
 
   } catch (err) {

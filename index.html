@@ -187,7 +187,8 @@
 <div id="authSection">
   <input type="text" id="authEmail" placeholder="Email">
   <input type="password" id="authPassword" placeholder="Password">
-  <button class="btn" id="loginBtn">Log in</button>
+  <!-- Login first (left), then Sign up -->
+  <button class="btn btn-primary" id="loginBtn">Log in</button>
   <button class="btn" id="signupBtn">Sign up</button>
   <button class="btn" id="logoutBtn" style="display:none;">Log out</button>
   <span id="authStatus" class="muted">Not logged in</span>
@@ -228,7 +229,7 @@
   <textarea id="en" placeholder="Paste English text here..."></textarea>
 
   <div class="row" id="langs">
-    <label><input type="checkbox" value="zh-TW" checked> zh-TW</label>
+    <label><input type="checkbox" value="zh-TW" checked> zh-TW (Traditional Chinese)</label>
     <label><input type="checkbox" value="zh-CN" checked> zh-CN</label>
     <label><input type="checkbox" value="ja-JP" checked> ja-JP</label>
     <label><input type="checkbox" value="th-TH" checked> th-TH</label>
@@ -254,7 +255,18 @@
 <!-- =============== PROJECTS TAB =============== -->
 <div id="projectsSection" style="display:none;">
   <h2>Projects</h2>
-  <button class="btn" id="loadProjectsBtn">Load Projects</button>
+
+  <!-- Clean filters row -->
+  <div class="row">
+    <input type="text" id="projectSearch" placeholder="Search project name...">
+    <select id="statusFilter">
+      <option value="">All statuses</option>
+      <option value="Draft">Draft</option>
+      <option value="Reviewed">Reviewed</option>
+      <option value="Approved">Approved</option>
+    </select>
+    <button class="btn" id="loadProjectsBtn">Load Projects</button>
+  </div>
 
   <table id="projectsTable" style="margin-top:16px;">
     <tr>
@@ -273,8 +285,8 @@
 /* =====================
    SUPABASE AUTH SETUP
 ===================== */
-const SUPABASE_URL = "https://dtctdmsdeurllyflwjwk.supabase.co";           // e.g. https://xxxx.supabase.co
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0Y3RkbXNkZXVybGx5Zmx3andrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzNjM3NzgsImV4cCI6MjA3ODkzOTc3OH0.VgLKd9iSIzTEtHwFkaD-5x1QQE6ir8g4CasmgvTtCGI"; // publishable / anon key
+const SUPABASE_URL = "YOUR_SUPABASE_URL_HERE";           // e.g. https://xxxx.supabase.co
+const SUPABASE_ANON_KEY = "YOUR_SUPABASE_ANON_KEY_HERE"; // publishable / anon key
 
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
@@ -300,11 +312,22 @@ const loginBtn     = $("#loginBtn");
 const logoutBtn    = $("#logoutBtn");
 const authStatus   = $("#authStatus");
 
+const projectSearch = $("#projectSearch");
+const statusFilter  = $("#statusFilter");
+
 function setStatus(msg){ statusEl.textContent = msg || ""; }
 
 function getSelectedLanguages() {
   return [...document.querySelectorAll('#langs input[type=checkbox]:checked')]
     .map(x => x.value);
+}
+
+/* =====================
+   LANGUAGE DISPLAY MAP
+===================== */
+function displayLanguage(code) {
+  if (code === "zh-TW") return "zh-TW (Traditional Chinese)";
+  return code;
 }
 
 /* =====================
@@ -430,7 +453,7 @@ $("#translateBtn").onclick = async () => {
     for (const [lang,val] of Object.entries(j.translations||{})) {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${lang}</td>
+        <td data-lang="${lang}">${displayLanguage(lang)}</td>
         <td contenteditable="true">${(val||"").replaceAll("<","&lt;")}</td>
         <td><button class="btn btn-small copy-btn">Copy</button></td>`;
       out.appendChild(tr);
@@ -485,7 +508,8 @@ function collectTranslations() {
   const obj = {};
   [...out.querySelectorAll("tr")].slice(1).forEach(tr => {
     const t = tr.querySelectorAll("td");
-    obj[t[0].innerText] = t[1].innerText;
+    const langCode = t[0].dataset.lang || t[0].innerText; // use code, not label
+    obj[langCode] = t[1].innerText;
   });
   return obj;
 }
@@ -602,12 +626,28 @@ $("#loadProjectsBtn").onclick = async () => {
     const j = await r.json();
     if (!r.ok) throw new Error(j.error);
 
-    for (const p of j.projects) {
+    const searchTerm = (projectSearch.value || "").toLowerCase();
+    const statusVal  = statusFilter.value;
+
+    let projects = j.projects || [];
+
+    if (statusVal) {
+      projects = projects.filter(p => p.status === statusVal);
+    }
+
+    if (searchTerm) {
+      projects = projects.filter(p =>
+        (p.project_name || "").toLowerCase().includes(searchTerm)
+      );
+    }
+
+    for (const p of projects) {
+      const langs = (p.languages || []).map(displayLanguage);
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td>${p.project_name}</td>
         <td>${p.status}</td>
-        <td>${(p.languages||[]).join(", ")}</td>
+        <td>${langs.join(", ")}</td>
         <td>${new Date(p.created_at).toLocaleString()}</td>
         <td><button class="btn btn-small load-btn" data-id="${p.id}">Load</button></td>`;
       tbl.appendChild(tr);
@@ -670,7 +710,7 @@ document.body.addEventListener("click", async (e) => {
     for (const lang of langs) {
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td>${lang}</td>
+        <td data-lang="${lang}">${displayLanguage(lang)}</td>
         <td contenteditable="true">${(mapping[lang]||"").replaceAll("<","&lt;")}</td>
         <td><button class="btn btn-small copy-btn">Copy</button></td>`;
       out.appendChild(tr);

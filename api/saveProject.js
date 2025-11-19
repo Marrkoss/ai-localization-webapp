@@ -10,11 +10,16 @@ export default async function handler(req, res) {
       englishText,
       translations,
       status,
-      reviewedBy
+      reviewedBy,
+      ownerId    // NEW: user id from Supabase Auth
     } = req.body || {};
 
     if (!projectName || !englishText || !translations || !languages?.length) {
       return res.status(400).json({ error: "Missing projectName, languages, englishText, or translations" });
+    }
+
+    if (!ownerId) {
+      return res.status(400).json({ error: "Missing ownerId (user must be logged in)" });
     }
 
     const url = process.env.SUPABASE_URL;
@@ -33,21 +38,21 @@ export default async function handler(req, res) {
 
     const effectiveStatus = status || "Draft";
 
-    // If it is already marked as reviewed/approved and we have a reviewer, set reviewed_at now
     let reviewed_at = null;
-    if (effectiveStatus !== "Draft" && reviewedBy) {
+    if ((effectiveStatus === "Reviewed" || effectiveStatus === "Approved") && reviewedBy) {
       reviewed_at = new Date().toISOString();
     }
 
-    // 1) Insert into projects table
+    // 1) Insert project with owner_id
     const projResp = await fetch(`${url}/rest/v1/projects`, {
       method: "POST",
       headers,
       body: JSON.stringify([
         {
           project_name: projectName,
-          languages: languages,
-          status: effectiveStatus
+          languages,
+          status: effectiveStatus,
+          owner_id: ownerId
         }
       ])
     });
@@ -64,7 +69,7 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Failed to get project ID from Supabase." });
     }
 
-    // 2) Insert one row into project_rows table
+    // 2) Insert one row into project_rows
     const rowPayload = [
       {
         project_id: projectId,

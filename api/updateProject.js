@@ -8,14 +8,17 @@ export default async function handler(req, res) {
       projectId,
       projectName,
       languages,
-      englishText,
-      translations,
       status,
-      reviewedBy
+      reviewedBy,
+      blocks
     } = req.body || {};
 
     if (!projectId) {
       return res.status(400).json({ error: "Missing projectId" });
+    }
+
+    if (!Array.isArray(blocks) || !blocks.length) {
+      return res.status(400).json({ error: "No blocks provided" });
     }
 
     const url = process.env.SUPABASE_URL;
@@ -35,7 +38,7 @@ export default async function handler(req, res) {
     const effectiveStatus = status || "Draft";
     const now = new Date().toISOString();
 
-    // 1) Update the projects table
+    // 1) Update project
     const projectPatch = {
       ...(projectName ? { project_name: projectName } : {}),
       ...(Array.isArray(languages) ? { languages } : {}),
@@ -55,39 +58,51 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Supabase projects update error: " + errTxt });
     }
 
-    // 2) Update the project_rows table
-    const rowPatch = {
-      english_text: englishText || null,
-      zh_tw: translations?.["zh-TW"] ?? null,
-      zh_cn: translations?.["zh-CN"] ?? null,
-      ja_jp: translations?.["ja-JP"] ?? null,
-      th_th: translations?.["th-TH"] ?? null,
-      vi_vn: translations?.["vi-VN"] ?? null,
-      status: effectiveStatus,
-      updated_at: now,
+    // 2) Delete old rows for this project
+    const delResp = await fetch(`${url}/rest/v1/project_rows?project_id=eq.${projectId}`, {
+      method: "DELETE",
+      headers
+    });
 
-      // IMPORTANT: always update reviewed_by, even if empty
-      reviewed_by: reviewedBy ? reviewedBy : null
-    };
-
-    // Set / clear reviewed_at depending on status + reviewer
-    if ((effectiveStatus === "Reviewed" || effectiveStatus === "Approved") && reviewedBy) {
-      rowPatch.reviewed_at = now;
-    } else {
-      // if Draft, or no reviewer name, clear the review date
-      rowPatch.reviewed_at = null;
+    if (!delResp.ok) {
+      const errTxt = await delResp.text();
+      console.error("Supabase project_rows delete error:", errTxt);
+      return res.status(500).json({ error: "Supabase project_rows delete error: " + errTxt });
     }
 
-    const rowResp = await fetch(`${url}/rest/v1/project_rows?project_id=eq.${projectId}`, {
-      method: "PATCH",
+    // 3) Insert new rows from blocks
+    let reviewed_at = null;
+    if ((effectiveStatus === "Reviewed" || effectiveStatus === "Approved") && reviewedBy) {
+      reviewed_at = now;
+    }
+
+    const rowsPayload = blocks.map((b, i) => {
+      const t = b.translations || {};
+      return {
+        project_id: projectId,
+        block_index: typeof b.index === "number" ? b.index : i,
+        english_text: b.englishText || "",
+        zh_tw: t["zh-TW"] || null,
+        zh_cn: t["zh-CN"] || null,
+        ja_jp: t["ja-JP"] || null,
+        th_th: t["th-TH"] || null,
+        vi_vn: t["vi-VN"] || null,
+        status: effectiveStatus,
+        reviewed_by: reviewedBy || null,
+        reviewed_at
+      };
+    });
+
+    const rowResp = await fetch(`${url}/rest/v1/project_rows`, {
+      method: "POST",
       headers,
-      body: JSON.stringify(rowPatch)
+      body: JSON.stringify(rowsPayload)
     });
 
     if (!rowResp.ok) {
       const errTxt = await rowResp.text();
-      console.error("Supabase project_rows update error:", errTxt);
-      return res.status(500).json({ error: "Supabase project_rows update error: " + errTxt });
+      console.error("Supabase project_rows insert (update) error:", errTxt);
+      return res.status(500).json({ error: "Supabase project_rows insert error: " + errTxt });
     }
 
     return res.status(200).json({ ok: true });

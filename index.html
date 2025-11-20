@@ -260,6 +260,7 @@
 
   <div class="row">
     <button class="btn btn-primary" id="translateBtn">TRANSLATE</button>
+    <button class="btn btn-primary" id="translateAllBtn">TRANSLATE ALL</button>
 
     <button class="btn" id="saveProjectBtn">Save project</button>
     <button class="btn" id="updateProjectBtn">Update project</button>
@@ -278,7 +279,7 @@
 <div id="projectsSection" style="display:none;">
   <h2>Projects</h2>
 
-  <!-- Clean filters row -->
+  <!-- Filters row -->
   <div class="row">
     <input type="text" id="projectSearch" placeholder="Search project name...">
     <select id="statusFilter">
@@ -287,7 +288,7 @@
       <option value="Reviewed">Reviewed</option>
       <option value="Approved">Approved</option>
     </select>
-    <button class="btn" id="loadProjectsBtn">Load Projects</button>
+    <button class="btn" id="loadProjectsBtn">Refresh</button>
   </div>
 
   <table id="projectsTable" style="margin-top:16px;">
@@ -393,7 +394,11 @@ function showProjectsTab() {
 }
 
 tabTranslate.onclick = showTranslateTab;
-tabProjects.onclick  = showProjectsTab;
+tabProjects.onclick  = () => {
+  showProjectsTab();
+  const btn = $("#loadProjectsBtn");
+  if (btn) btn.click(); // auto-refresh when opening Projects tab
+};
 
 /* =====================
     AUTH HANDLERS
@@ -547,17 +552,18 @@ window.addEventListener("load", () => {
 });
 
 /* =====================
-       TRANSLATE
+       TRANSLATE (CURRENT)
 ===================== */
 $("#translateBtn").onclick = async () => {
   const text = $("#en").value.trim();
-  if (!text) return alert("Please paste English text.");
+  if (!text) return alert("Please paste English text in the current block.");
 
   const targets = getSelectedLanguages();
   if (!targets.length) return alert("Select at least one language.");
 
-  setStatus("Translating…");
+  setStatus("Translating current block…");
   $("#translateBtn").disabled = true;
+  $("#translateAllBtn").disabled = true;
 
   try {
     const r = await fetch("/api/translate", {
@@ -590,6 +596,59 @@ $("#translateBtn").onclick = async () => {
     setStatus("Error.");
   } finally {
     $("#translateBtn").disabled = false;
+    $("#translateAllBtn").disabled = false;
+  }
+};
+
+/* =====================
+       TRANSLATE ALL BLOCKS
+===================== */
+$("#translateAllBtn").onclick = async () => {
+  // Ensure current block's text + translations are synced
+  syncCurrentBlockFromUI();
+
+  const targets = getSelectedLanguages();
+  if (!targets.length) return alert("Select at least one language.");
+
+  // Check at least one block has English text
+  const hasAnyText = blocks.some(b => (b.englishText || "").trim());
+  if (!hasAnyText) {
+    return alert("Please enter English text in at least one block.");
+  }
+
+  setStatus("Translating all blocks…");
+  $("#translateBtn").disabled = true;
+  $("#translateAllBtn").disabled = true;
+
+  try {
+    for (let i = 0; i < blocks.length; i++) {
+      const text = (blocks[i].englishText || "").trim();
+      if (!text) continue; // skip empty blocks
+
+      const r = await fetch("/api/translate", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ text, targets })
+      });
+
+      const j = await r.json();
+      if (!r.ok) {
+        throw new Error(j.error || `Translation failed on block ${i + 1}`);
+      }
+
+      blocks[i].translations = j.translations || {};
+    }
+
+    // Re-render currently active block
+    renderCurrentBlockToUI();
+    setStatus("All blocks translated.");
+  } catch (err) {
+    console.error(err);
+    alert("Translate all error:\n" + err.message);
+    setStatus("Error during translate all.");
+  } finally {
+    $("#translateBtn").disabled = false;
+    $("#translateAllBtn").disabled = false;
   }
 };
 

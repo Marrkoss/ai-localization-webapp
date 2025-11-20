@@ -57,7 +57,7 @@
     margin-left: auto;
     text-align: right;
     font-weight: 600;
-    font-size: 16px; /* bigger "Hi, Marcus" */
+    font-size: 16px; /* bigger Hi, Marcus */
     color: #fff;
   }
 
@@ -242,7 +242,7 @@
 
   <p id="reviewedInfo" class="muted"></p>
 
-  <!-- NEW: Text blocks bar -->
+  <!-- Text blocks bar -->
   <div class="row" id="blockBar">
     <!-- Buttons will be injected by JS -->
   </div>
@@ -463,6 +463,16 @@ function clearTranslationsTable() {
     </tr>`;
 }
 
+function collectTranslations() {
+  const obj = {};
+  [...out.querySelectorAll("tr")].slice(1).forEach(tr => {
+    const t = tr.querySelectorAll("td");
+    const langCode = t[0].dataset.lang || t[0].innerText;
+    obj[langCode] = t[1].innerText;
+  });
+  return obj;
+}
+
 function syncCurrentBlockFromUI() {
   if (!blocks[currentBlockIndex]) return;
   blocks[currentBlockIndex].englishText = $("#en").value.trim();
@@ -497,6 +507,7 @@ function renderBlockTabs() {
   label.textContent = "Text blocks:";
   bar.appendChild(label);
 
+  // Block tabs
   blocks.forEach((blk, idx) => {
     const btn = document.createElement("button");
     btn.className = "btn btn-small block-tab" + (idx === currentBlockIndex ? " block-active" : "");
@@ -505,11 +516,19 @@ function renderBlockTabs() {
     bar.appendChild(btn);
   });
 
+  // + Add block
   const addBtn = document.createElement("button");
   addBtn.className = "btn btn-small";
   addBtn.id = "addBlockBtn";
   addBtn.textContent = "+ Add block";
   bar.appendChild(addBtn);
+
+  // Delete block
+  const delBtn = document.createElement("button");
+  delBtn.className = "btn btn-small";
+  delBtn.id = "deleteBlockBtn";
+  delBtn.textContent = "Delete block";
+  bar.appendChild(delBtn);
 }
 
 function initBlocks() {
@@ -607,19 +626,6 @@ $("#csvBtn").onclick = () => {
 };
 
 /* =====================
-       HELPERS
-===================== */
-function collectTranslations() {
-  const obj = {};
-  [...out.querySelectorAll("tr")].slice(1).forEach(tr => {
-    const t = tr.querySelectorAll("td");
-    const langCode = t[0].dataset.lang || t[0].innerText;
-    obj[langCode] = t[1].innerText;
-  });
-  return obj;
-}
-
-/* =====================
       SAVE PROJECT
 ===================== */
 $("#saveProjectBtn").onclick = async () => {
@@ -663,7 +669,7 @@ $("#saveProjectBtn").onclick = async () => {
   try {
     const r = await fetch("/api/saveProject", {
       method: "POST",
-      headers: {"Content-Type":"application/json"},
+      headers:{"Content-Type":"application/json"},
       body: JSON.stringify({
         projectName: name,
         languages: langs,
@@ -803,7 +809,7 @@ $("#loadProjectsBtn").onclick = async () => {
    BODY CLICK HANDLER
 ===================== */
 document.body.addEventListener("click", async (e) => {
-  // Handle block bar
+  // Handle + Add block
   if (e.target.matches("#addBlockBtn")) {
     syncCurrentBlockFromUI();
     blocks.push(makeEmptyBlock());
@@ -813,6 +819,37 @@ document.body.addEventListener("click", async (e) => {
     return;
   }
 
+  // Handle Delete block
+  if (e.target.matches("#deleteBlockBtn")) {
+    if (!blocks.length) return;
+
+    // If only 1 block, just clear it instead of deleting
+    if (blocks.length === 1) {
+      blocks[0] = makeEmptyBlock();
+      currentBlockIndex = 0;
+      renderBlockTabs();
+      renderCurrentBlockToUI();
+      return;
+    }
+
+    const ok = confirm("Delete this text block?");
+    if (!ok) return;
+
+    // Remove current block
+    blocks.splice(currentBlockIndex, 1);
+
+    // Move index safely
+    if (currentBlockIndex >= blocks.length) {
+      currentBlockIndex = blocks.length - 1;
+    }
+    if (currentBlockIndex < 0) currentBlockIndex = 0;
+
+    renderBlockTabs();
+    renderCurrentBlockToUI();
+    return;
+  }
+
+  // Handle clicking on a block tab
   if (e.target.matches(".block-tab")) {
     const newIndex = parseInt(e.target.dataset.index, 10);
     if (!Number.isNaN(newIndex) && newIndex !== currentBlockIndex) {
@@ -824,7 +861,7 @@ document.body.addEventListener("click", async (e) => {
     return;
   }
 
-  // Handle loading a project
+  // Handle loading a project from Projects table
   if (!e.target.matches(".load-btn")) return;
 
   const id = e.target.dataset.id;
@@ -857,7 +894,7 @@ document.body.addEventListener("click", async (e) => {
       cb.checked = langs.includes(cb.value);
     });
 
-    // Build blocks from rows (for now, still mostly single-row usage)
+    // Build blocks from rows
     if (!rows.length) {
       blocks = [makeEmptyBlock()];
     } else {

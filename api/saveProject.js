@@ -7,19 +7,22 @@ export default async function handler(req, res) {
     const {
       projectName,
       languages,
-      englishText,
-      translations,
       status,
       reviewedBy,
-      ownerId    // NEW: user id from Supabase Auth
+      ownerId,
+      blocks
     } = req.body || {};
 
-    if (!projectName || !englishText || !translations || !languages?.length) {
-      return res.status(400).json({ error: "Missing projectName, languages, englishText, or translations" });
+    if (!projectName || !Array.isArray(languages) || !languages.length) {
+      return res.status(400).json({ error: "Missing projectName or languages" });
     }
 
     if (!ownerId) {
       return res.status(400).json({ error: "Missing ownerId (user must be logged in)" });
+    }
+
+    if (!Array.isArray(blocks) || !blocks.length) {
+      return res.status(400).json({ error: "No blocks provided" });
     }
 
     const url = process.env.SUPABASE_URL;
@@ -43,7 +46,7 @@ export default async function handler(req, res) {
       reviewed_at = new Date().toISOString();
     }
 
-    // 1) Insert project with owner_id
+    // 1) Insert into projects
     const projResp = await fetch(`${url}/rest/v1/projects`, {
       method: "POST",
       headers,
@@ -69,26 +72,28 @@ export default async function handler(req, res) {
       return res.status(500).json({ error: "Failed to get project ID from Supabase." });
     }
 
-    // 2) Insert one row into project_rows
-    const rowPayload = [
-      {
+    // 2) Insert rows for each block
+    const rowsPayload = blocks.map((b, i) => {
+      const t = b.translations || {};
+      return {
         project_id: projectId,
-        english_text: englishText,
-        zh_tw: translations["zh-TW"] || null,
-        zh_cn: translations["zh-CN"] || null,
-        ja_jp: translations["ja-JP"] || null,
-        th_th: translations["th-TH"] || null,
-        vi_vn: translations["vi-VN"] || null,
+        block_index: typeof b.index === "number" ? b.index : i,
+        english_text: b.englishText || "",
+        zh_tw: t["zh-TW"] || null,
+        zh_cn: t["zh-CN"] || null,
+        ja_jp: t["ja-JP"] || null,
+        th_th: t["th-TH"] || null,
+        vi_vn: t["vi-VN"] || null,
         status: effectiveStatus,
         reviewed_by: reviewedBy || null,
         reviewed_at
-      }
-    ];
+      };
+    });
 
     const rowResp = await fetch(`${url}/rest/v1/project_rows`, {
       method: "POST",
       headers,
-      body: JSON.stringify(rowPayload)
+      body: JSON.stringify(rowsPayload)
     });
 
     if (!rowResp.ok) {

@@ -56,7 +56,9 @@
     min-width: 180px;
     margin-left: auto;
     text-align: right;
-    font-weight: 500;
+    font-weight: 600;
+    font-size: 16px; /* bigger "Hi, Marcus" */
+    color: #fff;
   }
 
   /* Tabs */
@@ -175,6 +177,21 @@
   #translateSection, #projectsSection {
     margin-top: 12px;
   }
+
+  /* Block bar (multi-text) */
+  #blockBar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .block-tab {
+    /* uses .btn and .btn-small classes */
+  }
+
+  .block-active {
+    background: rgba(255,255,255,0.3);
+  }
 </style>
 </head>
 
@@ -224,6 +241,11 @@
   </div>
 
   <p id="reviewedInfo" class="muted"></p>
+
+  <!-- NEW: Text blocks bar -->
+  <div class="row" id="blockBar">
+    <!-- Buttons will be injected by JS -->
+  </div>
 
   <label>English text</label>
   <textarea id="en" placeholder="Paste English text here..."></textarea>
@@ -285,13 +307,23 @@
 /* =====================
    SUPABASE AUTH SETUP
 ===================== */
-const SUPABASE_URL = "https://dtctdmsdeurllyflwjwk.supabase.co";           // e.g. https://xxxx.supabase.co
-const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0Y3RkbXNkZXVybGx5Zmx3andrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzNjM3NzgsImV4cCI6MjA3ODkzOTc3OH0.VgLKd9iSIzTEtHwFkaD-5x1QQE6ir8g4CasmgvTtCGI"; // publishable / anon key
+const SUPABASE_URL = "https://dtctdmsdeurllyflwjwk.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0Y3RkbXNkZXVybGx5Zmx3andrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzNjM3NzgsImV4cCI6MjA3ODkzOTc3OH0.VgLKd9iSIzTEtHwFkaD-5x1QQE6ir8g4CasmgvTtCGI";
 
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
 let currentProjectId = null;
+
+/* =====================
+   MULTI-BLOCK STATE
+===================== */
+function makeEmptyBlock() {
+  return { englishText: "", translations: {} };
+}
+
+let blocks = [];
+let currentBlockIndex = 0;
 
 /* =====================
    BASIC DOM SHORTCUTS
@@ -335,11 +367,11 @@ function displayLanguage(code) {
 ===================== */
 function getDisplayNameFromEmail(email) {
   if (!email) return "User";
-  const raw = email.split("@")[0];                     // "marcus.cheong"
-  const parts = raw.split(/[.\-_]/g).filter(Boolean);  // ["marcus","cheong"]
+  const raw = email.split("@")[0];
+  const parts = raw.split(/[.\-_]/g).filter(Boolean);
   const pretty = parts
     .map(p => p.charAt(0).toUpperCase() + p.slice(1))
-    .join(" ");                                        // "Marcus Cheong"
+    .join(" ");
   return pretty || email;
 }
 
@@ -418,7 +450,82 @@ logoutBtn.onclick = async () => {
   await refreshUser();
 };
 
-window.addEventListener("load", refreshUser);
+/* =====================
+   BLOCK RENDER/SYNC
+===================== */
+
+function clearTranslationsTable() {
+  out.innerHTML = `
+    <tr>
+      <th>Language</th>
+      <th>Translation (editable)</th>
+      <th>Copy</th>
+    </tr>`;
+}
+
+function syncCurrentBlockFromUI() {
+  if (!blocks[currentBlockIndex]) return;
+  blocks[currentBlockIndex].englishText = $("#en").value.trim();
+  blocks[currentBlockIndex].translations = collectTranslations();
+}
+
+function renderCurrentBlockToUI() {
+  const blk = blocks[currentBlockIndex] || makeEmptyBlock();
+  $("#en").value = blk.englishText || "";
+  clearTranslationsTable();
+  const translations = blk.translations || {};
+  const langs = Object.keys(translations);
+  if (!langs.length) return;
+
+  for (const lang of langs) {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
+      <td data-lang="${lang}">${displayLanguage(lang)}</td>
+      <td contenteditable="true">${(translations[lang] || "").replaceAll("<","&lt;")}</td>
+      <td><button class="btn btn-small copy-btn">Copy</button></td>`;
+    out.appendChild(tr);
+  }
+}
+
+function renderBlockTabs() {
+  const bar = $("#blockBar");
+  if (!bar) return;
+  bar.innerHTML = "";
+
+  const label = document.createElement("span");
+  label.className = "muted";
+  label.textContent = "Text blocks:";
+  bar.appendChild(label);
+
+  blocks.forEach((blk, idx) => {
+    const btn = document.createElement("button");
+    btn.className = "btn btn-small block-tab" + (idx === currentBlockIndex ? " block-active" : "");
+    btn.dataset.index = idx;
+    btn.textContent = "Block " + (idx + 1);
+    bar.appendChild(btn);
+  });
+
+  const addBtn = document.createElement("button");
+  addBtn.className = "btn btn-small";
+  addBtn.id = "addBlockBtn";
+  addBtn.textContent = "+ Add block";
+  bar.appendChild(addBtn);
+}
+
+function initBlocks() {
+  blocks = [makeEmptyBlock()];
+  currentBlockIndex = 0;
+  renderBlockTabs();
+  renderCurrentBlockToUI();
+}
+
+/* =====================
+   ON LOAD
+===================== */
+window.addEventListener("load", () => {
+  refreshUser();
+  initBlocks();
+});
 
 /* =====================
        TRANSLATE
@@ -443,12 +550,7 @@ $("#translateBtn").onclick = async () => {
     const j = await r.json();
     if (!r.ok) throw new Error(j.error || "Translation failed");
 
-    out.innerHTML = `
-      <tr>
-        <th>Language</th>
-        <th>Translation (editable)</th>
-        <th>Copy</th>
-      </tr>`;
+    clearTranslationsTable();
 
     for (const [lang,val] of Object.entries(j.translations||{})) {
       const tr = document.createElement("tr");
@@ -458,6 +560,9 @@ $("#translateBtn").onclick = async () => {
         <td><button class="btn btn-small copy-btn">Copy</button></td>`;
       out.appendChild(tr);
     }
+
+    // store result into current block
+    syncCurrentBlockFromUI();
 
     setStatus("Done.");
   } catch (err) {
@@ -508,7 +613,7 @@ function collectTranslations() {
   const obj = {};
   [...out.querySelectorAll("tr")].slice(1).forEach(tr => {
     const t = tr.querySelectorAll("td");
-    const langCode = t[0].dataset.lang || t[0].innerText; // use code, not label
+    const langCode = t[0].dataset.lang || t[0].innerText;
     obj[langCode] = t[1].innerText;
   });
   return obj;
@@ -658,9 +763,31 @@ $("#loadProjectsBtn").onclick = async () => {
 };
 
 /* =====================
-   LOAD SINGLE PROJECT
+   BODY CLICK HANDLER
 ===================== */
 document.body.addEventListener("click", async (e) => {
+  // Handle block bar
+  if (e.target.matches("#addBlockBtn")) {
+    syncCurrentBlockFromUI();
+    blocks.push(makeEmptyBlock());
+    currentBlockIndex = blocks.length - 1;
+    renderBlockTabs();
+    renderCurrentBlockToUI();
+    return;
+  }
+
+  if (e.target.matches(".block-tab")) {
+    const newIndex = parseInt(e.target.dataset.index, 10);
+    if (!Number.isNaN(newIndex) && newIndex !== currentBlockIndex) {
+      syncCurrentBlockFromUI();
+      currentBlockIndex = newIndex;
+      renderBlockTabs();
+      renderCurrentBlockToUI();
+    }
+    return;
+  }
+
+  // Handle loading a project
   if (!e.target.matches(".load-btn")) return;
 
   const id = e.target.dataset.id;
@@ -671,18 +798,19 @@ document.body.addEventListener("click", async (e) => {
     if (!r.ok) throw new Error(j.error);
 
     const proj = j.project;
-    const row  = j.rows[0];
+    const rows = j.rows || [];
 
     currentProjectId = proj.id;
 
     $("#projectName").value   = proj.project_name || "";
     $("#projectStatus").value = proj.status || "Draft";
-    $("#en").value            = row?.english_text || "";
-    $("#reviewedBy").value    = row?.reviewed_by || "";
+
+    const firstRow = rows[0] || null;
+    $("#reviewedBy").value    = firstRow?.reviewed_by || "";
 
     const infoEl = $("#reviewedInfo");
-    if (row?.reviewed_at) {
-      infoEl.textContent = "Reviewed on: " + new Date(row.reviewed_at).toLocaleString();
+    if (firstRow?.reviewed_at) {
+      infoEl.textContent = "Reviewed on: " + new Date(firstRow.reviewed_at).toLocaleString();
     } else {
       infoEl.textContent = "";
     }
@@ -692,31 +820,26 @@ document.body.addEventListener("click", async (e) => {
       cb.checked = langs.includes(cb.value);
     });
 
-    out.innerHTML = `
-      <tr>
-        <th>Language</th>
-        <th>Translation (editable)</th>
-        <th>Copy</th>
-      </tr>`;
-
-    const mapping = {
-      "zh-TW": row?.zh_tw,
-      "zh-CN": row?.zh_cn,
-      "ja-JP": row?.ja_jp,
-      "th-TH": row?.th_th,
-      "vi-VN": row?.vi_vn
-    };
-
-    for (const lang of langs) {
-      const tr = document.createElement("tr");
-      tr.innerHTML = `
-        <td data-lang="${lang}">${displayLanguage(lang)}</td>
-        <td contenteditable="true">${(mapping[lang]||"").replaceAll("<","&lt;")}</td>
-        <td><button class="btn btn-small copy-btn">Copy</button></td>`;
-      out.appendChild(tr);
+    // Build blocks from rows (for now, still mostly single-row usage)
+    if (!rows.length) {
+      blocks = [makeEmptyBlock()];
+    } else {
+      blocks = rows.map(row => ({
+        englishText: row.english_text || "",
+        translations: {
+          "zh-TW": row.zh_tw || "",
+          "zh-CN": row.zh_cn || "",
+          "ja-JP": row.ja_jp || "",
+          "th-TH": row.th_th || "",
+          "vi-VN": row.vi_vn || ""
+        }
+      }));
     }
 
-    // Switch back to Translate tab when a project is loaded
+    currentBlockIndex = 0;
+    renderBlockTabs();
+    renderCurrentBlockToUI();
+
     showTranslateTab();
 
   } catch (err) {

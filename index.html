@@ -627,33 +627,50 @@ $("#saveProjectBtn").onclick = async () => {
     return alert("Please log in before saving a project.");
   }
 
-  const name  = $("#projectName").value.trim();
-  const enTxt = $("#en").value.trim();
+  // Make sure the current block is synced with UI
+  syncCurrentBlockFromUI();
+
+  const name   = $("#projectName").value.trim();
   const status = $("#projectStatus").value;
   const reviewedBy = $("#reviewedBy").value.trim();
-  const langs = getSelectedLanguages();
+  const langs  = getSelectedLanguages();
 
   if (!name)  return alert("Enter project name.");
-  if (!enTxt) return alert("Enter English text.");
   if (!langs.length) return alert("Select at least one language.");
 
-  const translations = collectTranslations();
-  if (Object.keys(translations).length === 0) {
-    return alert("Translate first before saving.");
+  // Check at least one block has English text
+  const hasAnyText = blocks.some(b => (b.englishText || "").trim());
+  if (!hasAnyText) {
+    return alert("Please enter English text in at least one block.");
+  }
+
+  // Build payload blocks (only keep blocks that have some content)
+  const payloadBlocks = blocks
+    .map((b, idx) => ({
+      index: idx,
+      englishText: b.englishText || "",
+      translations: b.translations || {}
+    }))
+    .filter(b =>
+      b.englishText.trim() ||
+      Object.values(b.translations).some(v => (v || "").trim())
+    );
+
+  if (!payloadBlocks.length) {
+    return alert("Nothing to save. Please add text or translations.");
   }
 
   try {
     const r = await fetch("/api/saveProject", {
-      method:"POST",
-      headers:{"Content-Type":"application/json"},
-      body:JSON.stringify({
-        projectName:name,
-        englishText:enTxt,
-        languages:langs,
-        translations,
+      method: "POST",
+      headers: {"Content-Type":"application/json"},
+      body: JSON.stringify({
+        projectName: name,
+        languages: langs,
         status,
         reviewedBy,
-        ownerId: currentUser.id
+        ownerId: currentUser.id,
+        blocks: payloadBlocks
       })
     });
 
@@ -674,28 +691,48 @@ $("#updateProjectBtn").onclick = async () => {
   if (!currentProjectId) return alert("Load a project or save a new one first.");
   if (!currentUser) return alert("Please log in.");
 
-  const name  = $("#projectName").value.trim();
-  const enTxt = $("#en").value.trim();
+  // Sync current block from UI
+  syncCurrentBlockFromUI();
+
+  const name   = $("#projectName").value.trim();
   const status = $("#projectStatus").value;
   const reviewedBy = $("#reviewedBy").value.trim();
-  const langs = getSelectedLanguages();
-  const translations = collectTranslations();
+  const langs  = getSelectedLanguages();
 
   if (!name)  return alert("Project name cannot be empty.");
-  if (!enTxt) return alert("English text cannot be empty.");
+  if (!langs.length) return alert("Select at least one language.");
+
+  const hasAnyText = blocks.some(b => (b.englishText || "").trim());
+  if (!hasAnyText) {
+    return alert("Please enter English text in at least one block.");
+  }
+
+  const payloadBlocks = blocks
+    .map((b, idx) => ({
+      index: idx,
+      englishText: b.englishText || "",
+      translations: b.translations || {}
+    }))
+    .filter(b =>
+      b.englishText.trim() ||
+      Object.values(b.translations).some(v => (v || "").trim())
+    );
+
+  if (!payloadBlocks.length) {
+    return alert("Nothing to update. Please add text or translations.");
+  }
 
   try {
     const r = await fetch("/api/updateProject", {
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
-        projectId:currentProjectId,
-        projectName:name,
-        englishText:enTxt,
-        languages:langs,
-        translations,
+        projectId: currentProjectId,
+        projectName: name,
+        languages: langs,
         status,
-        reviewedBy
+        reviewedBy,
+        blocks: payloadBlocks
       })
     });
 

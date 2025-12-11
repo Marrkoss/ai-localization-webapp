@@ -17,7 +17,7 @@
   body {
     font-family: system-ui, Arial, sans-serif;
     min-height: 100vh;
-    padding: 40px;
+    padding: 0;
     background: linear-gradient(135deg,#7e5095 0%,#372483 50%,#201e40 100%);
     color: white;
   }
@@ -33,31 +33,114 @@
     margin: 0 0 16px;
   }
 
-  /* Auth bar */
-  #authSection {
+  /* Centered login screen */
+  #loginScreen {
+    min-height: 100vh;
     display: flex;
-    flex-wrap: wrap;
-    gap: 10px;
     align-items: center;
-    margin-bottom: 16px;
+    justify-content: center;
+    padding: 24px;
   }
 
-  #authSection input[type="text"],
-  #authSection input[type="password"] {
-    padding: 6px 10px;
+  .login-card {
+    max-width: 380px;
+    width: 100%;
+    background: rgba(0,0,0,0.45);
+    border-radius: 16px;
+    padding: 24px 20px;
+    box-shadow: 0 18px 40px rgba(0,0,0,0.4);
+    backdrop-filter: blur(10px);
+  }
+
+  .login-card h1 {
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+
+  .login-card p {
+    margin: 0 0 18px;
+  }
+
+  .login-card input[type="text"],
+  .login-card input[type="password"] {
+    width: 100%;
+    padding: 8px 12px;
     border-radius: 8px;
     border: 1px solid rgba(255,255,255,0.5);
     background: rgba(0,0,0,0.25);
     color: white;
-    font-size: 13px;
+    font-size: 14px;
+    margin-bottom: 10px;
+  }
+
+  .login-card input::placeholder {
+    color: rgba(255,255,255,0.7);
+  }
+
+  /* Buttons */
+  .btn {
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.5);
+    background: rgba(0,0,0,0.35);
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .btn-primary {
+    font-weight: 700;
+    text-transform: uppercase;
+  }
+
+  .btn-right {
+    margin-left: auto;
+  }
+
+  .btn-small {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .btn:hover:not(:disabled) {
+    background: rgba(255,255,255,0.15);
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+  }
+
+  /* Main app shell */
+  #appShell {
+    display: none; /* hidden until logged in */
+    padding: 32px 40px 40px;
+  }
+
+  /* Top bar inside app */
+  #topBar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
+
+  #topBarTitle {
+    font-size: 20px;
+    font-weight: 600;
   }
 
   #authStatus {
-    min-width: 180px;
     margin-left: auto;
-    text-align: right;
     font-weight: 600;
-    font-size: 16px; /* bigger Hi, Marcus */
+    font-size: 16px;
     color: #fff;
   }
 
@@ -100,13 +183,6 @@
     color: rgba(255,255,255,0.6);
   }
 
-  .row {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-    margin: 16px 0;
-  }
-
   input[type="text"], select {
     padding: 8px 12px;
     border-radius: 8px;
@@ -118,39 +194,6 @@
 
   input::placeholder {
     color: rgba(255,255,255,0.7);
-  }
-
-  .btn {
-    padding: 10px 18px;
-    border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.5);
-    background: rgba(0,0,0,0.35);
-    color: white;
-    cursor: pointer;
-    font-size: 14px;
-  }
-
-  .btn-primary {
-    font-weight: 700;
-    text-transform: uppercase;
-  }
-
-  .btn-right {
-    margin-left: auto;
-  }
-
-  .btn-small {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-
-  .btn:hover:not(:disabled) {
-    background: rgba(255,255,255,0.15);
-  }
-
-  .btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
   }
 
   table {
@@ -185,10 +228,6 @@
     gap: 8px;
   }
 
-  .block-tab {
-    /* uses .btn and .btn-small classes */
-  }
-
   .block-active {
     background: rgba(255,255,255,0.3);
   }
@@ -197,109 +236,127 @@
 
 <body>
 
-<h1>AI Localization Web App</h1>
-<p class="muted">Translate marketing copy, save projects, and manage previous work.</p>
+<!-- ========== LOGIN SCREEN ========== -->
+<div id="loginScreen">
+  <div class="login-card">
+    <h1>AI Localization Tool</h1>
+    <p class="muted">Sign in with your email to access projects and translations.</p>
 
-<!-- AUTH SECTION -->
-<div id="authSection">
-  <input type="text" id="authEmail" placeholder="Email">
-  <input type="password" id="authPassword" placeholder="Password">
-  <!-- Login first (left), then Sign up -->
-  <button class="btn btn-primary" id="loginBtn">Log in</button>
-  <button class="btn" id="signupBtn">Sign up</button>
-  <button class="btn" id="logoutBtn" style="display:none;">Log out</button>
-  <span id="authStatus" class="muted">Not logged in</span>
+    <input type="text" id="authEmail" placeholder="Email">
+    <input type="password" id="authPassword" placeholder="Password">
+
+    <div class="row" style="margin-top: 8px;">
+      <button class="btn btn-primary" id="loginBtn">Sign in</button>
+      <button class="btn" id="signupBtn">Sign up</button>
+    </div>
+
+    <p class="muted" id="loginHint" style="margin-top: 10px;">
+      New user? Use Sign up. Returning user? Sign in with your existing account.
+    </p>
+  </div>
 </div>
 
-<!-- TABS -->
-<div class="tabs">
-  <button class="tab-btn tab-active" id="tabTranslate">Translate</button>
-  <button class="tab-btn" id="tabProjects">Projects</button>
-</div>
+<!-- ========== MAIN APP ========== -->
+<div id="appShell">
+  <!-- Top bar -->
+  <div id="topBar">
+    <div id="topBarTitle">AI Localization Web App</div>
+    <span id="authStatus" class="muted">Not logged in</span>
+    <button class="btn" id="logoutBtn">Log out</button>
+  </div>
 
-<!-- =============== TRANSLATE TAB =============== -->
-<div id="translateSection">
-  <div class="row">
-    <label>
-      Project name:
-      <input type="text" id="projectName" placeholder="E.g. Bosch October captions">
-    </label>
+  <p class="muted">Translate marketing copy, save projects, and manage previous work.</p>
 
-    <label>
-      Status:
-      <select id="projectStatus">
+  <!-- TABS -->
+  <div class="tabs">
+    <button class="tab-btn tab-active" id="tabTranslate">Translate</button>
+    <button class="tab-btn" id="tabProjects">Projects</button>
+  </div>
+
+  <!-- =============== TRANSLATE TAB =============== -->
+  <div id="translateSection">
+    <div class="row">
+      <label>
+        Project name:
+        <input type="text" id="projectName" placeholder="E.g. Bosch October captions">
+      </label>
+
+      <label>
+        Status:
+        <select id="projectStatus">
+          <option value="Draft">Draft</option>
+          <option value="Reviewed">Reviewed</option>
+          <option value="Approved">Approved</option>
+        </select>
+      </label>
+
+      <label>
+        Reviewed by:
+        <input type="text" id="reviewedBy" placeholder="Reviewer name">
+      </label>
+    </div>
+
+    <p id="reviewedInfo" class="muted"></p>
+
+    <!-- Text blocks bar -->
+    <div class="row" id="blockBar">
+      <!-- Buttons will be injected by JS -->
+    </div>
+
+    <label>English text</label>
+    <textarea id="en" placeholder="Paste English text here..."></textarea>
+
+    <div class="row" id="langs">
+      <label><input type="checkbox" value="zh-TW" checked> zh-TW (Traditional Chinese)</label>
+      <label><input type="checkbox" value="zh-CN" checked> zh-CN</label>
+      <label><input type="checkbox" value="ja-JP" checked> ja-JP</label>
+      <label><input type="checkbox" value="th-TH" checked> th-TH</label>
+      <label><input type="checkbox" value="vi-VN" checked> vi-VN</label>
+    </div>
+
+    <div class="row">
+      <button class="btn btn-primary" id="translateBtn">TRANSLATE</button>
+      <button class="btn btn-primary" id="translateAllBtn">TRANSLATE ALL</button>
+
+      <button class="btn" id="saveProjectBtn">Save project</button>
+      <button class="btn" id="updateProjectBtn">Update project</button>
+
+      <button class="btn btn-right" id="csvBtn">Download CSV</button>
+    </div>
+
+    <div id="status" class="muted"></div>
+
+    <table id="out">
+      <tr><th>Language</th><th>Translation (editable)</th><th>Copy</th></tr>
+    </table>
+  </div>
+
+  <!-- =============== PROJECTS TAB =============== -->
+  <div id="projectsSection" style="display:none;">
+    <h2>Projects</h2>
+
+    <!-- Filters row -->
+    <div class="row">
+      <input type="text" id="projectSearch" placeholder="Search project name...">
+      <select id="statusFilter">
+        <option value="">All statuses</option>
         <option value="Draft">Draft</option>
         <option value="Reviewed">Reviewed</option>
         <option value="Approved">Approved</option>
       </select>
-    </label>
+      <button class="btn" id="loadProjectsBtn">Refresh</button>
+    </div>
 
-    <label>
-      Reviewed by:
-      <input type="text" id="reviewedBy" placeholder="Reviewer name">
-    </label>
+    <table id="projectsTable" style="margin-top:16px;">
+      <tr>
+        <th>Project Name</th>
+        <th>Status</th>
+        <th>Languages</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+    </table>
   </div>
-
-  <p id="reviewedInfo" class="muted"></p>
-
-  <!-- Text blocks bar -->
-  <div class="row" id="blockBar">
-    <!-- Buttons will be injected by JS -->
-  </div>
-
-  <label>English text</label>
-  <textarea id="en" placeholder="Paste English text here..."></textarea>
-
-  <div class="row" id="langs">
-    <label><input type="checkbox" value="zh-TW" checked> zh-TW (Traditional Chinese)</label>
-    <label><input type="checkbox" value="zh-CN" checked> zh-CN</label>
-    <label><input type="checkbox" value="ja-JP" checked> ja-JP</label>
-    <label><input type="checkbox" value="th-TH" checked> th-TH</label>
-    <label><input type="checkbox" value="vi-VN" checked> vi-VN</label>
-  </div>
-
-  <div class="row">
-    <button class="btn btn-primary" id="translateBtn">TRANSLATE</button>
-    <button class="btn btn-primary" id="translateAllBtn">TRANSLATE ALL</button>
-
-    <button class="btn" id="saveProjectBtn">Save project</button>
-    <button class="btn" id="updateProjectBtn">Update project</button>
-
-    <button class="btn btn-right" id="csvBtn">Download CSV</button>
-  </div>
-
-  <div id="status" class="muted"></div>
-
-  <table id="out">
-    <tr><th>Language</th><th>Translation (editable)</th><th>Copy</th></tr>
-  </table>
-</div>
-
-<!-- =============== PROJECTS TAB =============== -->
-<div id="projectsSection" style="display:none;">
-  <h2>Projects</h2>
-
-  <!-- Filters row -->
-  <div class="row">
-    <input type="text" id="projectSearch" placeholder="Search project name...">
-    <select id="statusFilter">
-      <option value="">All statuses</option>
-      <option value="Draft">Draft</option>
-      <option value="Reviewed">Reviewed</option>
-      <option value="Approved">Approved</option>
-    </select>
-    <button class="btn" id="loadProjectsBtn">Refresh</button>
-  </div>
-
-  <table id="projectsTable" style="margin-top:16px;">
-    <tr>
-      <th>Project Name</th>
-      <th>Status</th>
-      <th>Languages</th>
-      <th>Date</th>
-      <th>Action</th>
-    </tr>
-  </table>
 </div>
 
 <!-- Supabase client -->
@@ -332,6 +389,9 @@ let currentBlockIndex = 0;
 const $  = s => document.querySelector(s);
 const out = $("#out");
 const statusEl = $("#status");
+
+const loginScreen  = $("#loginScreen");
+const appShell     = $("#appShell");
 
 const tabTranslate     = $("#tabTranslate");
 const tabProjects      = $("#tabProjects");
@@ -409,9 +469,8 @@ async function refreshUser() {
     currentUser = null;
     authStatus.textContent = "Not logged in";
     authStatus.title = "";
-    logoutBtn.style.display = "none";
-    loginBtn.style.display  = "";
-    signupBtn.style.display = "";
+    appShell.style.display = "none";
+    loginScreen.style.display = "flex";
     return;
   }
   currentUser = data.user;
@@ -421,9 +480,8 @@ async function refreshUser() {
   authStatus.textContent = "Hi, " + displayName;
   authStatus.title = email;
 
-  logoutBtn.style.display = "";
-  loginBtn.style.display  = "none";
-  signupBtn.style.display = "none";
+  loginScreen.style.display = "none";
+  appShell.style.display = "block";
 }
 
 signupBtn.onclick = async () => {
@@ -434,7 +492,7 @@ signupBtn.onclick = async () => {
   if (error) {
     alert("Sign up error:\n" + error.message);
   } else {
-    alert("Sign up successful. You can now log in.");
+    alert("Sign up successful. You can now sign in.");
   }
 };
 
@@ -689,7 +747,7 @@ $("#csvBtn").onclick = () => {
 ===================== */
 $("#saveProjectBtn").onclick = async () => {
   if (!currentUser) {
-    return alert("Please log in before saving a project.");
+    return alert("Please sign in before saving a project.");
   }
 
   // Make sure the current block is synced with UI
@@ -754,7 +812,7 @@ $("#saveProjectBtn").onclick = async () => {
 ===================== */
 $("#updateProjectBtn").onclick = async () => {
   if (!currentProjectId) return alert("Load a project or save a new one first.");
-  if (!currentUser) return alert("Please log in.");
+  if (!currentUser) return alert("Please sign in.");
 
   // Sync current block from UI
   syncCurrentBlockFromUI();
@@ -815,7 +873,7 @@ $("#updateProjectBtn").onclick = async () => {
 ===================== */
 $("#loadProjectsBtn").onclick = async () => {
   if (!currentUser) {
-    return alert("Please log in to load your projects.");
+    return alert("Please sign in to load your projects.");
   }
 
   const tbl = $("#projectsTable");
@@ -825,7 +883,7 @@ $("#loadProjectsBtn").onclick = async () => {
       <th>Status</th>
       <th>Languages</th>
       <th>Date</th>
-      <th>Action</th>
+      <th>Actions</th>
     </tr>`;
 
   try {
@@ -856,7 +914,10 @@ $("#loadProjectsBtn").onclick = async () => {
         <td>${p.status}</td>
         <td>${langs.join(", ")}</td>
         <td>${new Date(p.created_at).toLocaleString()}</td>
-        <td><button class="btn btn-small load-btn" data-id="${p.id}">Load</button></td>`;
+        <td>
+          <button class="btn btn-small load-btn" data-id="${p.id}">Load</button>
+          <button class="btn btn-small delete-project-btn" data-id="${p.id}">Delete</button>
+        </td>`;
       tbl.appendChild(tr);
     }
   } catch (err) {
@@ -916,6 +977,30 @@ document.body.addEventListener("click", async (e) => {
       currentBlockIndex = newIndex;
       renderBlockTabs();
       renderCurrentBlockToUI();
+    }
+    return;
+  }
+
+  // Handle deleting a project
+  if (e.target.matches(".delete-project-btn")) {
+    const id = e.target.dataset.id;
+    if (!id) return;
+    const ok = confirm("Delete this project? This cannot be undone.");
+    if (!ok) return;
+
+    try {
+      const r = await fetch("/api/deleteProject", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
+        body: JSON.stringify({ id })
+      });
+      const j = await r.json();
+      if (!r.ok) throw new Error(j.error);
+      alert("Project deleted.");
+      const btn = $("#loadProjectsBtn");
+      if (btn) btn.click(); // refresh list
+    } catch (err) {
+      alert("Delete error:\n" + err.message);
     }
     return;
   }

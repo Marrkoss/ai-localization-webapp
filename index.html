@@ -8,7 +8,11 @@
 <style>
   * { box-sizing: border-box; }
 
-  html, body { margin: 0; padding: 0; height: 100%; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+  }
 
   body {
     font-family: system-ui, Arial, sans-serif;
@@ -18,9 +22,16 @@
     color: white;
   }
 
-  h1 { font-size: 26px; margin: 0 0 8px; }
+  h1 {
+    font-size: 26px;
+    margin: 0 0 8px;
+  }
 
-  .muted { color: rgba(255,255,255,0.75); font-size: 13px; margin: 0 0 16px; }
+  .muted {
+    color: rgba(255,255,255,0.75);
+    font-size: 13px;
+    margin: 0 0 16px;
+  }
 
   /* Centered login screen */
   #loginScreen {
@@ -41,8 +52,14 @@
     backdrop-filter: blur(10px);
   }
 
-  .login-card h1 { font-size: 22px; margin-bottom: 6px; }
-  .login-card p { margin: 0 0 18px; }
+  .login-card h1 {
+    font-size: 22px;
+    margin-bottom: 6px;
+  }
+
+  .login-card p {
+    margin: 0 0 18px;
+  }
 
   .login-card input[type="text"],
   .login-card input[type="password"] {
@@ -56,7 +73,9 @@
     margin-bottom: 10px;
   }
 
-  .login-card input::placeholder { color: rgba(255,255,255,0.7); }
+  .login-card input::placeholder {
+    color: rgba(255,255,255,0.7);
+  }
 
   /* Buttons */
   .btn {
@@ -69,26 +88,60 @@
     font-size: 14px;
   }
 
-  .btn-primary { font-weight: 700; text-transform: uppercase; }
-  .btn-right { margin-left: auto; }
-  .btn-small { padding: 6px 12px; font-size: 12px; }
+  .btn-primary {
+    font-weight: 700;
+    text-transform: uppercase;
+  }
 
-  .btn:hover:not(:disabled) { background: rgba(255,255,255,0.15); }
-  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
+  .btn-right {
+    margin-left: auto;
+  }
 
-  .row { display: flex; gap: 16px; flex-wrap: wrap; margin: 16px 0; align-items: center; }
+  .btn-small {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .btn:hover:not(:disabled) {
+    background: rgba(255,255,255,0.15);
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  .row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+  }
 
   /* Main app shell */
-  #appShell { display: none; padding: 32px 40px 40px; }
+  #appShell {
+    display: none; /* hidden until logged in */
+    padding: 32px 40px 40px;
+  }
 
-  /* Top bar */
-  #topBar { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
-  #topBarTitle { font-size: 20px; font-weight: 600; }
+  /* Top bar inside app */
+  #topBar {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 12px;
+  }
 
+  #topBarTitle {
+    font-size: 20px;
+    font-weight: 600;
+  }
+
+  /* Bigger “Hi, Marcus” */
   #authStatus {
     margin-left: auto;
     font-weight: 700;
-    font-size: 18px; /* bigger "Hi, Marcus" */
+    font-size: 18px;
     color: #fff;
   }
 
@@ -111,7 +164,10 @@
     font-size: 14px;
   }
 
-  .tab-btn.tab-active { background: rgba(255,255,255,0.18); color: white; }
+  .tab-btn.tab-active {
+    background: rgba(255,255,255,0.18);
+    color: white;
+  }
 
   textarea {
     width: 100%;
@@ -124,7 +180,9 @@
     font-size: 15px;
   }
 
-  textarea::placeholder { color: rgba(255,255,255,0.6); }
+  textarea::placeholder {
+    color: rgba(255,255,255,0.6);
+  }
 
   input[type="text"], select {
     padding: 8px 12px;
@@ -135,7 +193,9 @@
     font-size: 14px;
   }
 
-  input::placeholder { color: rgba(255,255,255,0.7); }
+  input::placeholder {
+    color: rgba(255,255,255,0.7);
+  }
 
   table {
     width: 100%;
@@ -153,20 +213,33 @@
     vertical-align: top;
   }
 
-  th { background: rgba(0,0,0,0.35); font-weight: bold; }
+  th {
+    background: rgba(0,0,0,0.35);
+    font-weight: bold;
+  }
 
-  #translateSection, #projectsSection { margin-top: 12px; }
+  #translateSection, #projectsSection, #adminSection {
+    margin-top: 12px;
+  }
 
-  /* Block bar */
-  #blockBar { display: flex; align-items: center; gap: 8px; }
-  .block-active { background: rgba(255,255,255,0.3); }
+  /* Block bar (multi-text) */
+  #blockBar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
 
-  /* Admin badge */
-  .badge {
+  .block-active {
+    background: rgba(255,255,255,0.3);
+  }
+
+  .pill {
+    display:inline-block;
     padding: 4px 10px;
+    border: 1px solid rgba(255,255,255,0.25);
     border-radius: 999px;
     font-size: 12px;
-    border: 1px solid rgba(255,255,255,0.4);
+    color: rgba(255,255,255,0.85);
     background: rgba(0,0,0,0.2);
   }
 </style>
@@ -174,7 +247,7 @@
 
 <body>
 
-<!-- LOGIN SCREEN -->
+<!-- ========== LOGIN SCREEN ========== -->
 <div id="loginScreen">
   <div class="login-card">
     <h1>AI Localization Tool</h1>
@@ -194,23 +267,25 @@
   </div>
 </div>
 
-<!-- MAIN APP -->
+<!-- ========== MAIN APP ========== -->
 <div id="appShell">
+  <!-- Top bar -->
   <div id="topBar">
     <div id="topBarTitle">AI Localization Web App</div>
     <span id="authStatus" class="muted">Not logged in</span>
-    <span id="roleBadge" class="badge" style="display:none;"></span>
     <button class="btn" id="logoutBtn">Log out</button>
   </div>
 
   <p class="muted">Translate marketing copy, save projects, and manage previous work.</p>
 
+  <!-- TABS -->
   <div class="tabs">
     <button class="tab-btn tab-active" id="tabTranslate">Translate</button>
     <button class="tab-btn" id="tabProjects">Projects</button>
+    <button class="tab-btn" id="tabAdmin" style="display:none;">Admin</button>
   </div>
 
-  <!-- TRANSLATE TAB -->
+  <!-- =============== TRANSLATE TAB =============== -->
   <div id="translateSection">
     <div class="row">
       <label>
@@ -231,11 +306,16 @@
         Reviewed by:
         <input type="text" id="reviewedBy" placeholder="Reviewer name">
       </label>
+
+      <span class="pill" id="rolePill" style="align-self:center; display:none;"></span>
     </div>
 
     <p id="reviewedInfo" class="muted"></p>
 
-    <div class="row" id="blockBar"></div>
+    <!-- Text blocks bar -->
+    <div class="row" id="blockBar">
+      <!-- Buttons will be injected by JS -->
+    </div>
 
     <label>English text</label>
     <textarea id="en" placeholder="Paste English text here..."></textarea>
@@ -265,10 +345,11 @@
     </table>
   </div>
 
-  <!-- PROJECTS TAB -->
+  <!-- =============== PROJECTS TAB =============== -->
   <div id="projectsSection" style="display:none;">
     <h2>Projects</h2>
 
+    <!-- Filters row -->
     <div class="row">
       <input type="text" id="projectSearch" placeholder="Search project name...">
       <select id="statusFilter">
@@ -277,13 +358,6 @@
         <option value="Reviewed">Reviewed</option>
         <option value="Approved">Approved</option>
       </select>
-
-      <!-- Admin-only toggle -->
-      <label id="adminViewWrap" style="display:none; gap:8px; align-items:center;">
-        <input type="checkbox" id="adminViewAll">
-        <span class="muted" style="margin:0;">Admin view (all projects)</span>
-      </label>
-
       <button class="btn" id="loadProjectsBtn">Refresh</button>
     </div>
 
@@ -297,113 +371,221 @@
       </tr>
     </table>
   </div>
+
+  <!-- =============== ADMIN TAB =============== -->
+  <div id="adminSection" style="display:none;">
+    <h2>Admin</h2>
+    <p class="muted">Admins can view all projects and approve Reviewed → Approved.</p>
+
+    <div class="row">
+      <input type="text" id="adminSearch" placeholder="Search project name / owner email (if available)...">
+      <select id="adminStatusFilter">
+        <option value="">All statuses</option>
+        <option value="Draft">Draft</option>
+        <option value="Reviewed">Reviewed</option>
+        <option value="Approved">Approved</option>
+      </select>
+      <button class="btn" id="adminRefreshBtn">Refresh All Projects</button>
+    </div>
+
+    <table id="adminProjectsTable" style="margin-top:16px;">
+      <tr>
+        <th>Project Name</th>
+        <th>Status</th>
+        <th>Languages</th>
+        <th>Date</th>
+        <th>Actions</th>
+      </tr>
+    </table>
+  </div>
 </div>
 
+<!-- Supabase client -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
+/* =====================
+   SUPABASE AUTH SETUP
+===================== */
 const SUPABASE_URL = "https://dtctdmsdeurllyflwjwk.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0Y3RkbXNkZXVybGx5Zmx3andrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzNjM3NzgsImV4cCI6MjA3ODkzOTc3OH0.VgLKd9iSIzTEtHwFkaD-5x1QQE6ir8g4CasmgvTtCGI";
+
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
 let currentProjectId = null;
-let myRole = "user"; // user | admin (we only need these 2 right now)
 
-function makeEmptyBlock(){ return { englishText: "", translations: {} }; }
+/* =====================
+   ADMIN ROLE STATE
+===================== */
+let myRole = "user"; // "user" | "admin"
+
+/* =====================
+   MULTI-BLOCK STATE
+===================== */
+function makeEmptyBlock() {
+  return { englishText: "", translations: {} };
+}
+
 let blocks = [];
 let currentBlockIndex = 0;
 
-const $ = s => document.querySelector(s);
+/* =====================
+   BASIC DOM SHORTCUTS
+===================== */
+const $  = s => document.querySelector(s);
 const out = $("#out");
 const statusEl = $("#status");
 
-const loginScreen = $("#loginScreen");
-const appShell = $("#appShell");
+const loginScreen  = $("#loginScreen");
+const appShell     = $("#appShell");
 
-const tabTranslate = $("#tabTranslate");
-const tabProjects  = $("#tabProjects");
+const tabTranslate     = $("#tabTranslate");
+const tabProjects      = $("#tabProjects");
+const tabAdmin         = $("#tabAdmin");
+
 const translateSection = $("#translateSection");
 const projectsSection  = $("#projectsSection");
+const adminSection     = $("#adminSection");
 
-const authEmail = $("#authEmail");
+const authEmail    = $("#authEmail");
 const authPassword = $("#authPassword");
-const signupBtn = $("#signupBtn");
-const loginBtn  = $("#loginBtn");
-const logoutBtn = $("#logoutBtn");
-const authStatus = $("#authStatus");
-const roleBadge = $("#roleBadge");
+const signupBtn    = $("#signupBtn");
+const loginBtn     = $("#loginBtn");
+const logoutBtn    = $("#logoutBtn");
+const authStatus   = $("#authStatus");
 
 const projectSearch = $("#projectSearch");
 const statusFilter  = $("#statusFilter");
 
-const adminViewWrap = $("#adminViewWrap");
-const adminViewAll  = $("#adminViewAll");
-
 function setStatus(msg){ statusEl.textContent = msg || ""; }
 
-function getSelectedLanguages(){
-  return [...document.querySelectorAll('#langs input[type=checkbox]:checked')].map(x => x.value);
+function getSelectedLanguages() {
+  return [...document.querySelectorAll('#langs input[type=checkbox]:checked')]
+    .map(x => x.value);
 }
 
-function displayLanguage(code){
+/* =====================
+   LANGUAGE DISPLAY MAP
+===================== */
+function displayLanguage(code) {
   if (code === "zh-TW") return "zh-TW (Traditional Chinese)";
   return code;
 }
 
-function getDisplayNameFromEmail(email){
+/* =====================
+   DISPLAY NAME HELPER
+===================== */
+function getDisplayNameFromEmail(email) {
   if (!email) return "User";
   const raw = email.split("@")[0];
   const parts = raw.split(/[.\-_]/g).filter(Boolean);
-  const pretty = parts.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(" ");
+  const pretty = parts
+    .map(p => p.charAt(0).toUpperCase() + p.slice(1))
+    .join(" ");
   return pretty || email;
 }
 
-/* Tabs */
-function showTranslateTab(){
-  tabTranslate.classList.add("tab-active");
-  tabProjects.classList.remove("tab-active");
-  translateSection.style.display = "";
-  projectsSection.style.display = "none";
+/* =====================
+  SAFE JSON FETCH HELPER
+===================== */
+async function fetchJson(url, options = {}) {
+  const resp = await fetch(url, options);
+  const txt = await resp.text();
+  let data = null;
+  try { data = txt ? JSON.parse(txt) : {}; }
+  catch { data = { error: txt || "Not valid JSON from server." }; }
+  return { ok: resp.ok, status: resp.status, data };
 }
-function showProjectsTab(){
-  tabTranslate.classList.remove("tab-active");
-  tabProjects.classList.add("tab-active");
-  translateSection.style.display = "none";
-  projectsSection.style.display = "";
-}
-tabTranslate.onclick = showTranslateTab;
-tabProjects.onclick = () => {
-  showProjectsTab();
-  const btn = $("#loadProjectsBtn");
-  if (btn) btn.click();
-};
 
-/* Role fetch (server decides) */
-async function refreshRole(){
+/* =====================
+   GET ACCESS TOKEN
+===================== */
+async function getAccessToken() {
+  const { data } = await supa.auth.getSession();
+  return data?.session?.access_token || "";
+}
+
+/* =====================
+   ROLE FETCH (SERVER)
+   Requires /api/getMyRole
+===================== */
+async function refreshMyRole() {
   myRole = "user";
-  roleBadge.style.display = "none";
-  adminViewWrap.style.display = "none";
-  adminViewAll.checked = false;
+  const pill = $("#rolePill");
+  if (pill) { pill.style.display = "none"; pill.textContent = ""; }
 
-  if (!currentUser) return;
+  const token = await getAccessToken();
+  if (!token) return;
 
-  try {
-    const r = await fetch("/api/getMyRole");
-    const j = await r.json();
-    if (r.ok && j.role) {
-      myRole = j.role;
-    }
-  } catch (_) {}
+  const { ok, data } = await fetchJson("/api/getMyRole", {
+    headers: { Authorization: "Bearer " + token }
+  });
 
+  if (ok) myRole = data.role || "user";
+  else myRole = "user";
+
+  // show/hide Admin tab
   if (myRole === "admin") {
-    roleBadge.style.display = "";
-    roleBadge.textContent = "Admin";
-    adminViewWrap.style.display = "flex";
+    tabAdmin.style.display = "";
+    if (pill) {
+      pill.style.display = "";
+      pill.textContent = "ADMIN";
+    }
+  } else {
+    tabAdmin.style.display = "none";
   }
 }
 
-/* Auth */
-async function refreshUser(){
+/* =====================
+       TABS LOGIC
+===================== */
+function showTranslateTab() {
+  tabTranslate.classList.add("tab-active");
+  tabProjects.classList.remove("tab-active");
+  tabAdmin.classList.remove("tab-active");
+
+  translateSection.style.display = "";
+  projectsSection.style.display = "none";
+  adminSection.style.display = "none";
+}
+
+function showProjectsTab() {
+  tabTranslate.classList.remove("tab-active");
+  tabProjects.classList.add("tab-active");
+  tabAdmin.classList.remove("tab-active");
+
+  translateSection.style.display = "none";
+  projectsSection.style.display = "";
+  adminSection.style.display = "none";
+}
+
+function showAdminTab() {
+  tabTranslate.classList.remove("tab-active");
+  tabProjects.classList.remove("tab-active");
+  tabAdmin.classList.add("tab-active");
+
+  translateSection.style.display = "none";
+  projectsSection.style.display = "none";
+  adminSection.style.display = "";
+}
+
+tabTranslate.onclick = showTranslateTab;
+tabProjects.onclick  = () => {
+  showProjectsTab();
+  const btn = $("#loadProjectsBtn");
+  if (btn) btn.click(); // auto-refresh when opening Projects tab
+};
+tabAdmin.onclick = () => {
+  if (myRole !== "admin") return alert("Admin access required.");
+  showAdminTab();
+  const btn = $("#adminRefreshBtn");
+  if (btn) btn.click();
+};
+
+/* =====================
+    AUTH HANDLERS
+===================== */
+async function refreshUser() {
   const { data, error } = await supa.auth.getUser();
   if (error || !data.user) {
     currentUser = null;
@@ -411,7 +593,8 @@ async function refreshUser(){
     authStatus.title = "";
     appShell.style.display = "none";
     loginScreen.style.display = "flex";
-    roleBadge.style.display = "none";
+    tabAdmin.style.display = "none";
+    myRole = "user";
     return;
   }
 
@@ -425,34 +608,44 @@ async function refreshUser(){
   loginScreen.style.display = "none";
   appShell.style.display = "block";
 
-  await refreshRole();
+  await refreshMyRole();
 }
 
 signupBtn.onclick = async () => {
   const email = authEmail.value.trim();
-  const pw = authPassword.value.trim();
+  const pw    = authPassword.value.trim();
   if (!email || !pw) return alert("Enter email and password.");
   const { error } = await supa.auth.signUp({ email, password: pw });
-  if (error) alert("Sign up error:\n" + error.message);
-  else alert("Sign up successful. You can now sign in.");
+  if (error) {
+    alert("Sign up error:\n" + error.message);
+  } else {
+    alert("Sign up successful. You can now sign in.");
+  }
 };
 
 loginBtn.onclick = async () => {
   const email = authEmail.value.trim();
-  const pw = authPassword.value.trim();
+  const pw    = authPassword.value.trim();
   if (!email || !pw) return alert("Enter email and password.");
   const { error } = await supa.auth.signInWithPassword({ email, password: pw });
-  if (error) alert("Login error:\n" + error.message);
-  else await refreshUser();
+  if (error) {
+    alert("Login error:\n" + error.message);
+  } else {
+    await refreshUser();
+    await refreshMyRole();
+  }
 };
 
 logoutBtn.onclick = async () => {
   await supa.auth.signOut();
   await refreshUser();
+  showTranslateTab();
 };
 
-/* Blocks */
-function clearTranslationsTable(){
+/* =====================
+   BLOCK RENDER/SYNC
+===================== */
+function clearTranslationsTable() {
   out.innerHTML = `
     <tr>
       <th>Language</th>
@@ -460,7 +653,8 @@ function clearTranslationsTable(){
       <th>Copy</th>
     </tr>`;
 }
-function collectTranslations(){
+
+function collectTranslations() {
   const obj = {};
   [...out.querySelectorAll("tr")].slice(1).forEach(tr => {
     const t = tr.querySelectorAll("td");
@@ -469,12 +663,14 @@ function collectTranslations(){
   });
   return obj;
 }
-function syncCurrentBlockFromUI(){
+
+function syncCurrentBlockFromUI() {
   if (!blocks[currentBlockIndex]) return;
   blocks[currentBlockIndex].englishText = $("#en").value.trim();
   blocks[currentBlockIndex].translations = collectTranslations();
 }
-function renderCurrentBlockToUI(){
+
+function renderCurrentBlockToUI() {
   const blk = blocks[currentBlockIndex] || makeEmptyBlock();
   $("#en").value = blk.englishText || "";
   clearTranslationsTable();
@@ -491,8 +687,10 @@ function renderCurrentBlockToUI(){
     out.appendChild(tr);
   }
 }
-function renderBlockTabs(){
+
+function renderBlockTabs() {
   const bar = $("#blockBar");
+  if (!bar) return;
   bar.innerHTML = "";
 
   const label = document.createElement("span");
@@ -500,7 +698,8 @@ function renderBlockTabs(){
   label.textContent = "Text blocks:";
   bar.appendChild(label);
 
-  blocks.forEach((_, idx) => {
+  // Block tabs
+  blocks.forEach((blk, idx) => {
     const btn = document.createElement("button");
     btn.className = "btn btn-small block-tab" + (idx === currentBlockIndex ? " block-active" : "");
     btn.dataset.index = idx;
@@ -508,26 +707,39 @@ function renderBlockTabs(){
     bar.appendChild(btn);
   });
 
+  // + Add block
   const addBtn = document.createElement("button");
   addBtn.className = "btn btn-small";
   addBtn.id = "addBlockBtn";
   addBtn.textContent = "+ Add block";
   bar.appendChild(addBtn);
 
+  // Delete block
   const delBtn = document.createElement("button");
   delBtn.className = "btn btn-small";
   delBtn.id = "deleteBlockBtn";
   delBtn.textContent = "Delete block";
   bar.appendChild(delBtn);
 }
-function initBlocks(){
+
+function initBlocks() {
   blocks = [makeEmptyBlock()];
   currentBlockIndex = 0;
   renderBlockTabs();
   renderCurrentBlockToUI();
 }
 
-/* Translate current */
+/* =====================
+   ON LOAD
+===================== */
+window.addEventListener("load", () => {
+  refreshUser();
+  initBlocks();
+});
+
+/* =====================
+       TRANSLATE (CURRENT)
+===================== */
 $("#translateBtn").onclick = async () => {
   const text = $("#en").value.trim();
   if (!text) return alert("Please paste English text in the current block.");
@@ -540,16 +752,17 @@ $("#translateBtn").onclick = async () => {
   $("#translateAllBtn").disabled = true;
 
   try {
-    const r = await fetch("/api/translate", {
+    const { ok, data } = await fetchJson("/api/translate", {
       method: "POST",
-      headers: {"Content-Type":"application/json"},
+      headers: {"Content-Type": "application/json"},
       body: JSON.stringify({ text, targets })
     });
-    const j = await r.json();
-    if (!r.ok) throw new Error(j.error || "Translation failed");
+
+    if (!ok) throw new Error(data.error || "Translation failed");
 
     clearTranslationsTable();
-    for (const [lang, val] of Object.entries(j.translations || {})) {
+
+    for (const [lang,val] of Object.entries(data.translations||{})) {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td data-lang="${lang}">${displayLanguage(lang)}</td>
@@ -558,9 +771,12 @@ $("#translateBtn").onclick = async () => {
       out.appendChild(tr);
     }
 
+    // store result into current block
     syncCurrentBlockFromUI();
+
     setStatus("Done.");
   } catch (err) {
+    console.error(err);
     alert("Translation error:\n" + err.message);
     setStatus("Error.");
   } finally {
@@ -569,12 +785,15 @@ $("#translateBtn").onclick = async () => {
   }
 };
 
-/* Translate all blocks */
+/* =====================
+       TRANSLATE ALL BLOCKS
+===================== */
 $("#translateAllBtn").onclick = async () => {
   syncCurrentBlockFromUI();
 
   const targets = getSelectedLanguages();
   if (!targets.length) return alert("Select at least one language.");
+
   const hasAnyText = blocks.some(b => (b.englishText || "").trim());
   if (!hasAnyText) return alert("Please enter English text in at least one block.");
 
@@ -583,23 +802,24 @@ $("#translateAllBtn").onclick = async () => {
   $("#translateAllBtn").disabled = true;
 
   try {
-    for (let i=0; i<blocks.length; i++) {
+    for (let i = 0; i < blocks.length; i++) {
       const text = (blocks[i].englishText || "").trim();
       if (!text) continue;
 
-      const r = await fetch("/api/translate", {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
+      const { ok, data } = await fetchJson("/api/translate", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ text, targets })
       });
-      const j = await r.json();
-      if (!r.ok) throw new Error(j.error || `Translation failed on block ${i+1}`);
-      blocks[i].translations = j.translations || {};
+
+      if (!ok) throw new Error(data.error || `Translation failed on block ${i + 1}`);
+      blocks[i].translations = data.translations || {};
     }
 
     renderCurrentBlockToUI();
     setStatus("All blocks translated.");
   } catch (err) {
+    console.error(err);
     alert("Translate all error:\n" + err.message);
     setStatus("Error during translate all.");
   } finally {
@@ -608,7 +828,9 @@ $("#translateAllBtn").onclick = async () => {
   }
 };
 
-/* Copy */
+/* =====================
+          COPY
+===================== */
 out.addEventListener("click", async e => {
   if (!e.target.matches(".copy-btn")) return;
   const text = e.target.closest("tr").querySelector("td:nth-child(2)").innerText;
@@ -616,7 +838,9 @@ out.addEventListener("click", async e => {
   setStatus("Copied!");
 });
 
-/* CSV Export (current table only, same as your version) */
+/* =====================
+       CSV EXPORT
+===================== */
 $("#csvBtn").onclick = () => {
   const rows = [["Language","Translation"]];
   [...out.querySelectorAll("tr")].slice(1).forEach(tr => {
@@ -624,6 +848,7 @@ $("#csvBtn").onclick = () => {
     rows.push([t[0].innerText, t[1].innerText]);
   });
   if (rows.length === 1) return alert("No translations to export.");
+
   const csv = rows.map(r => r.map(s=>`"${String(s).replaceAll('"','""')}"`).join(",")).join("\n");
   const blob = new Blob([csv],{type:"text/csv"});
   const a = document.createElement("a");
@@ -632,37 +857,41 @@ $("#csvBtn").onclick = () => {
   a.click();
 };
 
-/* Save */
+/* =====================
+      SAVE PROJECT
+===================== */
 $("#saveProjectBtn").onclick = async () => {
   if (!currentUser) return alert("Please sign in before saving a project.");
 
   syncCurrentBlockFromUI();
 
-  const name = $("#projectName").value.trim();
+  const name   = $("#projectName").value.trim();
   const status = $("#projectStatus").value;
   const reviewedBy = $("#reviewedBy").value.trim();
-  const langs = getSelectedLanguages();
+  const langs  = getSelectedLanguages();
 
-  if (!name) return alert("Enter project name.");
+  if (!name)  return alert("Enter project name.");
   if (!langs.length) return alert("Select at least one language.");
-
-  // Non-admin cannot set Approved (admin-only rule)
-  if (status === "Approved" && myRole !== "admin") {
-    return alert("Only Admin can set status to Approved.");
-  }
 
   const hasAnyText = blocks.some(b => (b.englishText || "").trim());
   if (!hasAnyText) return alert("Please enter English text in at least one block.");
 
   const payloadBlocks = blocks
-    .map((b, idx) => ({ index: idx, englishText: b.englishText || "", translations: b.translations || {} }))
-    .filter(b => b.englishText.trim() || Object.values(b.translations).some(v => (v || "").trim()));
+    .map((b, idx) => ({
+      index: idx,
+      englishText: b.englishText || "",
+      translations: b.translations || {}
+    }))
+    .filter(b =>
+      b.englishText.trim() ||
+      Object.values(b.translations).some(v => (v || "").trim())
+    );
 
-  if (!payloadBlocks.length) return alert("Nothing to save.");
+  if (!payloadBlocks.length) return alert("Nothing to save. Please add text or translations.");
 
   try {
-    const r = await fetch("/api/saveProject", {
-      method:"POST",
+    const { ok, data } = await fetchJson("/api/saveProject", {
+      method: "POST",
       headers:{"Content-Type":"application/json"},
       body: JSON.stringify({
         projectName: name,
@@ -673,45 +902,54 @@ $("#saveProjectBtn").onclick = async () => {
         blocks: payloadBlocks
       })
     });
-    const j = await r.json();
-    if (!r.ok) throw new Error(j.error);
-    currentProjectId = j.projectId;
+
+    if (!ok) throw new Error(data.error);
+
+    currentProjectId = data.projectId;
     alert("Project saved!");
   } catch (err) {
     alert("Save error:\n" + err.message);
   }
 };
 
-/* Update */
+/* =====================
+     UPDATE PROJECT
+===================== */
 $("#updateProjectBtn").onclick = async () => {
   if (!currentProjectId) return alert("Load a project or save a new one first.");
   if (!currentUser) return alert("Please sign in.");
 
   syncCurrentBlockFromUI();
 
-  const name = $("#projectName").value.trim();
+  const name   = $("#projectName").value.trim();
   const status = $("#projectStatus").value;
   const reviewedBy = $("#reviewedBy").value.trim();
-  const langs = getSelectedLanguages();
+  const langs  = getSelectedLanguages();
 
-  if (!name) return alert("Project name cannot be empty.");
+  if (!name)  return alert("Project name cannot be empty.");
   if (!langs.length) return alert("Select at least one language.");
 
-  if (status === "Approved" && myRole !== "admin") {
-    return alert("Only Admin can set status to Approved.");
-  }
+  const hasAnyText = blocks.some(b => (b.englishText || "").trim());
+  if (!hasAnyText) return alert("Please enter English text in at least one block.");
 
   const payloadBlocks = blocks
-    .map((b, idx) => ({ index: idx, englishText: b.englishText || "", translations: b.translations || {} }))
-    .filter(b => b.englishText.trim() || Object.values(b.translations).some(v => (v || "").trim()));
+    .map((b, idx) => ({
+      index: idx,
+      englishText: b.englishText || "",
+      translations: b.translations || {}
+    }))
+    .filter(b =>
+      b.englishText.trim() ||
+      Object.values(b.translations).some(v => (v || "").trim())
+    );
 
-  if (!payloadBlocks.length) return alert("Nothing to update.");
+  if (!payloadBlocks.length) return alert("Nothing to update. Please add text or translations.");
 
   try {
-    const r = await fetch("/api/updateProject", {
+    const { ok, data } = await fetchJson("/api/updateProject", {
       method:"POST",
       headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({
+      body:JSON.stringify({
         projectId: currentProjectId,
         projectName: name,
         languages: langs,
@@ -720,26 +958,24 @@ $("#updateProjectBtn").onclick = async () => {
         blocks: payloadBlocks
       })
     });
-    const j = await r.json();
-    if (!r.ok) throw new Error(j.error);
+
+    if (!ok) throw new Error(data.error);
     alert("Project updated!");
   } catch (err) {
     alert("Update error:\n" + err.message);
   }
 };
 
-/* Load projects list (supports admin toggle without new functions) */
-async function loadProjects(){
+/* =====================
+   LOAD PROJECT LIST (MY PROJECTS)
+===================== */
+$("#loadProjectsBtn").onclick = async () => {
   if (!currentUser) return alert("Please sign in to load your projects.");
 
   const tbl = $("#projectsTable");
-  const isAdminView = (myRole === "admin" && adminViewAll.checked);
-
-  // Header changes (Owner column only in admin view)
   tbl.innerHTML = `
     <tr>
       <th>Project Name</th>
-      ${isAdminView ? "<th>Owner</th>" : ""}
       <th>Status</th>
       <th>Languages</th>
       <th>Date</th>
@@ -747,21 +983,13 @@ async function loadProjects(){
     </tr>`;
 
   try {
-    const qs = new URLSearchParams();
-    // normal users: their own projects
-    qs.set("ownerId", currentUser.id);
-
-    // admin view: tell backend to return all (backend must verify admin role)
-    if (isAdminView) qs.set("adminAll", "1");
-
-    const r = await fetch("/api/getProjects?" + qs.toString());
-    const j = await r.json();
-    if (!r.ok) throw new Error(j.error);
+    const { ok, data } = await fetchJson("/api/getProjects?ownerId=" + encodeURIComponent(currentUser.id));
+    if (!ok) throw new Error(data.error);
 
     const searchTerm = (projectSearch.value || "").toLowerCase();
-    const statusVal = statusFilter.value;
+    const statusVal  = statusFilter.value;
 
-    let projects = j.projects || [];
+    let projects = data.projects || [];
 
     if (statusVal) projects = projects.filter(p => p.status === statusVal);
     if (searchTerm) projects = projects.filter(p => (p.project_name || "").toLowerCase().includes(searchTerm));
@@ -769,39 +997,91 @@ async function loadProjects(){
     for (const p of projects) {
       const langs = (p.languages || []).map(displayLanguage);
       const tr = document.createElement("tr");
-
-      const ownerCell = isAdminView
-        ? `<td>${p.owner_email || p.owner_id || ""}</td>`
-        : "";
-
-      // Admin can "Approve" quickly (calls same endpoint, backend must verify admin)
-      const approveBtn = (myRole === "admin")
-        ? `<button class="btn btn-small approve-project-btn" data-id="${p.id}">Approve</button>`
-        : "";
-
       tr.innerHTML = `
         <td>${p.project_name}</td>
-        ${ownerCell}
         <td>${p.status}</td>
         <td>${langs.join(", ")}</td>
         <td>${new Date(p.created_at).toLocaleString()}</td>
         <td>
           <button class="btn btn-small load-btn" data-id="${p.id}">Load</button>
           <button class="btn btn-small delete-project-btn" data-id="${p.id}">Delete</button>
-          ${approveBtn}
         </td>`;
       tbl.appendChild(tr);
     }
   } catch (err) {
     alert("Load error:\n" + err.message);
   }
-}
+};
 
-$("#loadProjectsBtn").onclick = loadProjects;
-adminViewAll.onchange = () => { const btn = $("#loadProjectsBtn"); if (btn) btn.click(); };
+/* =====================
+   ADMIN: LOAD ALL PROJECTS
+   - This expects your server route to allow admin to fetch all projects.
+   - Common implementation: /api/getProjects with no ownerId returns all (server checks role).
+===================== */
+$("#adminRefreshBtn").onclick = async () => {
+  if (!currentUser) return alert("Please sign in.");
+  if (myRole !== "admin") return alert("Admin access required.");
 
-/* Body click handler */
+  const tbl = $("#adminProjectsTable");
+  tbl.innerHTML = `
+    <tr>
+      <th>Project Name</th>
+      <th>Status</th>
+      <th>Languages</th>
+      <th>Date</th>
+      <th>Actions</th>
+    </tr>`;
+
+  const search = ($("#adminSearch").value || "").toLowerCase();
+  const fStatus = $("#adminStatusFilter").value;
+
+  try {
+    const token = await getAccessToken();
+
+    // IMPORTANT: this endpoint must be coded server-side to return all projects for admins
+    const { ok, data } = await fetchJson("/api/getProjects", {
+      headers: { Authorization: "Bearer " + token }
+    });
+
+    if (!ok) throw new Error(data.error || "Failed to load admin projects.");
+
+    let projects = data.projects || [];
+    if (fStatus) projects = projects.filter(p => p.status === fStatus);
+
+    if (search) {
+      projects = projects.filter(p =>
+        (p.project_name || "").toLowerCase().includes(search) ||
+        (p.owner_email || "").toLowerCase().includes(search) ||
+        (p.owner_id || "").toLowerCase().includes(search)
+      );
+    }
+
+    for (const p of projects) {
+      const langs = (p.languages || []).map(displayLanguage);
+      const canApprove = (p.status === "Reviewed"); // only show approve when Reviewed
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td>${p.project_name}</td>
+        <td>${p.status}${p.owner_email ? `<div class="muted" style="margin-top:6px;">${p.owner_email}</div>` : ""}</td>
+        <td>${langs.join(", ")}</td>
+        <td>${new Date(p.created_at).toLocaleString()}</td>
+        <td>
+          <button class="btn btn-small load-btn" data-id="${p.id}">Load</button>
+          ${canApprove ? `<button class="btn btn-small admin-approve-btn" data-id="${p.id}">Approve</button>` : ""}
+          <button class="btn btn-small admin-delete-project-btn" data-id="${p.id}">Delete</button>
+        </td>`;
+      tbl.appendChild(tr);
+    }
+  } catch (err) {
+    alert("Admin load error:\n" + err.message);
+  }
+};
+
+/* =====================
+   BODY CLICK HANDLER
+===================== */
 document.body.addEventListener("click", async (e) => {
+  // Handle + Add block
   if (e.target.matches("#addBlockBtn")) {
     syncCurrentBlockFromUI();
     blocks.push(makeEmptyBlock());
@@ -811,8 +1091,10 @@ document.body.addEventListener("click", async (e) => {
     return;
   }
 
+  // Handle Delete block
   if (e.target.matches("#deleteBlockBtn")) {
     if (!blocks.length) return;
+
     if (blocks.length === 1) {
       blocks[0] = makeEmptyBlock();
       currentBlockIndex = 0;
@@ -820,15 +1102,21 @@ document.body.addEventListener("click", async (e) => {
       renderCurrentBlockToUI();
       return;
     }
-    if (!confirm("Delete this text block?")) return;
+
+    const ok = confirm("Delete this text block?");
+    if (!ok) return;
+
     blocks.splice(currentBlockIndex, 1);
+
     if (currentBlockIndex >= blocks.length) currentBlockIndex = blocks.length - 1;
     if (currentBlockIndex < 0) currentBlockIndex = 0;
+
     renderBlockTabs();
     renderCurrentBlockToUI();
     return;
   }
 
+  // Handle clicking on a block tab
   if (e.target.matches(".block-tab")) {
     const newIndex = parseInt(e.target.dataset.index, 10);
     if (!Number.isNaN(newIndex) && newIndex !== currentBlockIndex) {
@@ -840,71 +1128,122 @@ document.body.addEventListener("click", async (e) => {
     return;
   }
 
+  // Handle deleting a project (USER)
   if (e.target.matches(".delete-project-btn")) {
     const id = e.target.dataset.id;
     if (!id) return;
-    if (!confirm("Delete this project? This cannot be undone.")) return;
+    const ok = confirm("Delete this project? This cannot be undone.");
+    if (!ok) return;
 
     try {
-      const r = await fetch("/api/deleteProject", {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
+      const { ok:ok2, data } = await fetchJson("/api/deleteProject", {
+        method: "POST",
+        headers: {"Content-Type": "application/json"},
         body: JSON.stringify({ id })
       });
-      const j = await r.json();
-      if (!r.ok) throw new Error(j.error);
+      if (!ok2) throw new Error(data.error);
       alert("Project deleted.");
-      await loadProjects();
+      const btn = $("#loadProjectsBtn");
+      if (btn) btn.click();
     } catch (err) {
       alert("Delete error:\n" + err.message);
     }
     return;
   }
 
-  if (e.target.matches(".approve-project-btn")) {
+  // Handle deleting a project (ADMIN)
+  if (e.target.matches(".admin-delete-project-btn")) {
+    if (myRole !== "admin") return alert("Admin access required.");
     const id = e.target.dataset.id;
     if (!id) return;
-    if (myRole !== "admin") return alert("Admin only.");
+
+    const ok = confirm("ADMIN: Delete this project? This cannot be undone.");
+    if (!ok) return;
 
     try {
-      const r = await fetch("/api/setProjectStatus", {
-        method:"POST",
-        headers:{"Content-Type":"application/json"},
+      const token = await getAccessToken();
+
+      // You can point this to the SAME /api/deleteProject if your server checks admin role.
+      const { ok:ok2, data } = await fetchJson("/api/deleteProject", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token
+        },
+        body: JSON.stringify({ id })
+      });
+
+      if (!ok2) throw new Error(data.error || "Delete failed");
+      alert("Project deleted.");
+      const btn = $("#adminRefreshBtn");
+      if (btn) btn.click();
+    } catch (err) {
+      alert("Admin delete error:\n" + err.message);
+    }
+    return;
+  }
+
+  // Handle admin approve (Reviewed -> Approved)
+  if (e.target.matches(".admin-approve-btn")) {
+    if (myRole !== "admin") return alert("Admin access required.");
+    const id = e.target.dataset.id;
+    if (!id) return;
+
+    try {
+      const token = await getAccessToken();
+
+      // Endpoint must exist server-side and enforce admin-only approval.
+      // Recommended: reuse /api/setProjectStatus to avoid adding more serverless functions.
+      const { ok, data } = await fetchJson("/api/setProjectStatus", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: "Bearer " + token
+        },
         body: JSON.stringify({ projectId: id, status: "Approved" })
       });
-      const j = await r.json();
-      if (!r.ok) throw new Error(j.error);
+
+      if (!ok) throw new Error(data.error || "Approve failed");
       alert("Approved.");
-      await loadProjects();
+      const btn = $("#adminRefreshBtn");
+      if (btn) btn.click();
     } catch (err) {
       alert("Approve error:\n" + err.message);
     }
     return;
   }
 
+  // Handle loading a project from any table
   if (!e.target.matches(".load-btn")) return;
+
   const id = e.target.dataset.id;
 
   try {
-    const r = await fetch(`/api/getProject?id=${id}`);
-    const j = await r.json();
-    if (!r.ok) throw new Error(j.error);
+    const { ok, data } = await fetchJson(`/api/getProject?id=${encodeURIComponent(id)}`);
+    if (!ok) throw new Error(data.error);
 
-    const proj = j.project;
-    const rows = j.rows || [];
+    const proj = data.project;
+    const rows = data.rows || [];
+
     currentProjectId = proj.id;
 
-    $("#projectName").value = proj.project_name || "";
+    $("#projectName").value   = proj.project_name || "";
     $("#projectStatus").value = proj.status || "Draft";
 
     const firstRow = rows[0] || null;
-    $("#reviewedBy").value = firstRow?.reviewed_by || "";
+    $("#reviewedBy").value    = firstRow?.reviewed_by || "";
 
     const infoEl = $("#reviewedInfo");
-    infoEl.textContent = firstRow?.reviewed_at ? ("Reviewed on: " + new Date(firstRow.reviewed_at).toLocaleString()) : "";
+    if (firstRow?.reviewed_at) {
+      infoEl.textContent = "Reviewed on: " + new Date(firstRow.reviewed_at).toLocaleString();
+    } else {
+      infoEl.textContent = "";
+    }
 
     const langs = proj.languages || [];
-    document.querySelectorAll('#langs input[type=checkbox]').forEach(cb => cb.checked = langs.includes(cb.value));
+    document.querySelectorAll('#langs input[type=checkbox]').forEach(cb => {
+      cb.checked = langs.includes(cb.value);
+    });
 
     if (!rows.length) {
       blocks = [makeEmptyBlock()];
@@ -924,16 +1263,11 @@ document.body.addEventListener("click", async (e) => {
     currentBlockIndex = 0;
     renderBlockTabs();
     renderCurrentBlockToUI();
+
     showTranslateTab();
   } catch (err) {
     alert("Error loading project:\n" + err.message);
   }
-});
-
-/* Init */
-window.addEventListener("load", async () => {
-  await refreshUser();
-  initBlocks();
 });
 </script>
 

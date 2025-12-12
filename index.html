@@ -1,4 +1,4 @@
-<!doctype html>
+ <!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
@@ -17,7 +17,7 @@
   body {
     font-family: system-ui, Arial, sans-serif;
     min-height: 100vh;
-    padding: 0;
+    padding: 40px;
     background: linear-gradient(135deg,#7e5095 0%,#372483 50%,#201e40 100%);
     color: white;
   }
@@ -33,115 +33,31 @@
     margin: 0 0 16px;
   }
 
-  /* Centered login screen */
-  #loginScreen {
-    min-height: 100vh;
+  /* Auth bar */
+  #authSection {
     display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
     align-items: center;
-    justify-content: center;
-    padding: 24px;
+    margin-bottom: 16px;
   }
 
-  .login-card {
-    max-width: 380px;
-    width: 100%;
-    background: rgba(0,0,0,0.45);
-    border-radius: 16px;
-    padding: 24px 20px;
-    box-shadow: 0 18px 40px rgba(0,0,0,0.4);
-    backdrop-filter: blur(10px);
-  }
-
-  .login-card h1 {
-    font-size: 22px;
-    margin-bottom: 6px;
-  }
-
-  .login-card p {
-    margin: 0 0 18px;
-  }
-
-  .login-card input[type="text"],
-  .login-card input[type="password"] {
-    width: 100%;
-    padding: 8px 12px;
+  #authSection input[type="text"],
+  #authSection input[type="password"] {
+    padding: 6px 10px;
     border-radius: 8px;
     border: 1px solid rgba(255,255,255,0.5);
     background: rgba(0,0,0,0.25);
     color: white;
-    font-size: 14px;
-    margin-bottom: 10px;
-  }
-
-  .login-card input::placeholder {
-    color: rgba(255,255,255,0.7);
-  }
-
-  /* Buttons */
-  .btn {
-    padding: 10px 18px;
-    border-radius: 999px;
-    border: 1px solid rgba(255,255,255,0.5);
-    background: rgba(0,0,0,0.35);
-    color: white;
-    cursor: pointer;
-    font-size: 14px;
-  }
-
-  .btn-primary {
-    font-weight: 700;
-    text-transform: uppercase;
-  }
-
-  .btn-right {
-    margin-left: auto;
-  }
-
-  .btn-small {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
-
-  .btn:hover:not(:disabled) {
-    background: rgba(255,255,255,0.15);
-  }
-
-  .btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .row {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-    margin: 16px 0;
-  }
-
-  /* Main app shell */
-  #appShell {
-    display: none; /* hidden until logged in */
-    padding: 32px 40px 40px;
-  }
-
-  /* Top bar inside app */
-  #topBar {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 12px;
-  }
-
-  #topBarTitle {
-    font-size: 20px;
-    font-weight: 600;
+    font-size: 13px;
   }
 
   #authStatus {
+    min-width: 180px;
     margin-left: auto;
-    font-weight: 600;
-    font-size: 16px;
-    color: #fff;
+    text-align: right;
+    font-weight: 600;         /* slightly bolder */
+    font-size: 16px;          /* bigger "Hi, Marcus" */
   }
 
   /* Tabs */
@@ -151,6 +67,7 @@
     border-radius: 999px;
     padding: 4px;
     margin-bottom: 20px;
+    gap: 2px;
   }
 
   .tab-btn {
@@ -183,6 +100,14 @@
     color: rgba(255,255,255,0.6);
   }
 
+  .row {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 16px 0;
+    align-items: center;
+  }
+
   input[type="text"], select {
     padding: 8px 12px;
     border-radius: 8px;
@@ -194,6 +119,39 @@
 
   input::placeholder {
     color: rgba(255,255,255,0.7);
+  }
+
+  .btn {
+    padding: 10px 18px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.5);
+    background: rgba(0,0,0,0.35);
+    color: white;
+    cursor: pointer;
+    font-size: 14px;
+  }
+
+  .btn-primary {
+    font-weight: 800;
+    text-transform: uppercase;
+  }
+
+  .btn-right {
+    margin-left: auto;
+  }
+
+  .btn-small {
+    padding: 6px 12px;
+    font-size: 12px;
+  }
+
+  .btn:hover:not(:disabled) {
+    background: rgba(255,255,255,0.15);
+  }
+
+  .btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
   }
 
   table {
@@ -217,151 +175,160 @@
     font-weight: bold;
   }
 
-  #translateSection, #projectsSection {
+  #translateSection, #projectsSection, #adminSection {
     margin-top: 12px;
   }
 
-  /* Block bar (multi-text) */
-  #blockBar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
-  .block-active {
-    background: rgba(255,255,255,0.3);
+  /* Simple admin header badge */
+  .badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    background: rgba(255,255,255,0.18);
+    border: 1px solid rgba(255,255,255,0.25);
+    margin-left: 10px;
   }
 </style>
 </head>
 
 <body>
 
-<!-- ========== LOGIN SCREEN ========== -->
-<div id="loginScreen">
-  <div class="login-card">
-    <h1>AI Localization Tool</h1>
-    <p class="muted">Sign in with your email to access projects and translations.</p>
+<h1>AI Localization Web App</h1>
+<p class="muted">Translate marketing copy, save projects, and manage previous work.</p>
 
-    <input type="text" id="authEmail" placeholder="Email">
-    <input type="password" id="authPassword" placeholder="Password">
-
-    <div class="row" style="margin-top: 8px;">
-      <button class="btn btn-primary" id="loginBtn">Sign in</button>
-      <button class="btn" id="signupBtn">Sign up</button>
-    </div>
-
-    <p class="muted" id="loginHint" style="margin-top: 10px;">
-      New user? Use Sign up. Returning user? Sign in with your existing account.
-    </p>
-  </div>
+<!-- AUTH SECTION -->
+<div id="authSection">
+  <input type="text" id="authEmail" placeholder="Email">
+  <input type="password" id="authPassword" placeholder="Password">
+  <button class="btn btn-primary" id="loginBtn">Log in</button>
+  <button class="btn" id="signupBtn">Sign up</button>
+  <button class="btn" id="logoutBtn" style="display:none;">Log out</button>
+  <span id="authStatus" class="muted">Not logged in</span>
 </div>
 
-<!-- ========== MAIN APP ========== -->
-<div id="appShell">
-  <!-- Top bar -->
-  <div id="topBar">
-    <div id="topBarTitle">AI Localization Web App</div>
-    <span id="authStatus" class="muted">Not logged in</span>
-    <button class="btn" id="logoutBtn">Log out</button>
-  </div>
+<!-- TABS -->
+<div class="tabs">
+  <button class="tab-btn tab-active" id="tabTranslate">Translate</button>
+  <button class="tab-btn" id="tabProjects">Projects</button>
+  <button class="tab-btn" id="tabAdmin" style="display:none;">Admin</button>
+</div>
 
-  <p class="muted">Translate marketing copy, save projects, and manage previous work.</p>
+<!-- =============== TRANSLATE TAB =============== -->
+<div id="translateSection">
+  <div class="row">
+    <label>
+      Project name:
+      <input type="text" id="projectName" placeholder="E.g. Bosch October captions">
+    </label>
 
-  <!-- TABS -->
-  <div class="tabs">
-    <button class="tab-btn tab-active" id="tabTranslate">Translate</button>
-    <button class="tab-btn" id="tabProjects">Projects</button>
-  </div>
-
-  <!-- =============== TRANSLATE TAB =============== -->
-  <div id="translateSection">
-    <div class="row">
-      <label>
-        Project name:
-        <input type="text" id="projectName" placeholder="E.g. Bosch October captions">
-      </label>
-
-      <label>
-        Status:
-        <select id="projectStatus">
-          <option value="Draft">Draft</option>
-          <option value="Reviewed">Reviewed</option>
-          <option value="Approved">Approved</option>
-        </select>
-      </label>
-
-      <label>
-        Reviewed by:
-        <input type="text" id="reviewedBy" placeholder="Reviewer name">
-      </label>
-    </div>
-
-    <p id="reviewedInfo" class="muted"></p>
-
-    <!-- Text blocks bar -->
-    <div class="row" id="blockBar">
-      <!-- Buttons will be injected by JS -->
-    </div>
-
-    <label>English text</label>
-    <textarea id="en" placeholder="Paste English text here..."></textarea>
-
-    <div class="row" id="langs">
-      <label><input type="checkbox" value="zh-TW" checked> zh-TW (Traditional Chinese)</label>
-      <label><input type="checkbox" value="zh-CN" checked> zh-CN</label>
-      <label><input type="checkbox" value="ja-JP" checked> ja-JP</label>
-      <label><input type="checkbox" value="th-TH" checked> th-TH</label>
-      <label><input type="checkbox" value="vi-VN" checked> vi-VN</label>
-    </div>
-
-    <div class="row">
-      <button class="btn btn-primary" id="translateBtn">TRANSLATE</button>
-      <button class="btn btn-primary" id="translateAllBtn">TRANSLATE ALL BLOCKS</button>
-
-      <button class="btn" id="saveProjectBtn">Save project</button>
-      <button class="btn" id="updateProjectBtn">Update project</button>
-
-      <button class="btn btn-right" id="csvBtn">Download CSV</button>
-    </div>
-
-    <div id="status" class="muted"></div>
-
-    <table id="out">
-      <tr><th>Language</th><th>Translation (editable)</th><th>Copy</th></tr>
-    </table>
-  </div>
-
-  <!-- =============== PROJECTS TAB =============== -->
-  <div id="projectsSection" style="display:none;">
-    <h2>Projects</h2>
-
-    <!-- Filters row -->
-    <div class="row">
-      <input type="text" id="projectSearch" placeholder="Search project name...">
-      <select id="statusFilter">
-        <option value="">All statuses</option>
+    <label>
+      Status:
+      <select id="projectStatus">
         <option value="Draft">Draft</option>
         <option value="Reviewed">Reviewed</option>
         <option value="Approved">Approved</option>
       </select>
-      <button class="btn" id="loadProjectsBtn">Refresh</button>
-    </div>
+    </label>
 
-    <table id="projectsTable" style="margin-top:16px;">
-      <tr>
-        <th>Project Name</th>
-        <th>Status</th>
-        <th>Languages</th>
-        <th>Date</th>
-        <th>Actions</th>
-      </tr>
-    </table>
+    <label>
+      Reviewed by:
+      <input type="text" id="reviewedBy" placeholder="Reviewer name">
+    </label>
   </div>
+
+  <p id="reviewedInfo" class="muted"></p>
+
+  <label>English text</label>
+  <textarea id="en" placeholder="Paste English text here..."></textarea>
+
+  <div class="row" id="langs">
+    <label><input type="checkbox" value="zh-TW" checked> zh-TW (Traditional Chinese)</label>
+    <label><input type="checkbox" value="zh-CN" checked> zh-CN (Simplified Chinese)</label>
+    <label><input type="checkbox" value="ja-JP" checked> ja-JP (Japanese)</label>
+    <label><input type="checkbox" value="th-TH" checked> th-TH (Thai)</label>
+    <label><input type="checkbox" value="vi-VN" checked> vi-VN (Vietnamese)</label>
+  </div>
+
+  <div class="row">
+    <button class="btn btn-primary" id="translateBtn">TRANSLATE</button>
+
+    <button class="btn" id="saveProjectBtn">Save project</button>
+    <button class="btn" id="updateProjectBtn">Update project</button>
+
+    <button class="btn btn-right" id="csvBtn">Download CSV</button>
+  </div>
+
+  <div id="status" class="muted"></div>
+
+  <table id="out">
+    <tr><th>Language</th><th>Translation (editable)</th><th>Copy</th></tr>
+  </table>
+</div>
+
+<!-- =============== PROJECTS TAB =============== -->
+<div id="projectsSection" style="display:none;">
+  <h2>Projects</h2>
+
+  <div class="row">
+    <input type="text" id="projectSearch" placeholder="Search project name...">
+    <select id="statusFilter">
+      <option value="">All statuses</option>
+      <option value="Draft">Draft</option>
+      <option value="Reviewed">Reviewed</option>
+      <option value="Approved">Approved</option>
+    </select>
+    <button class="btn" id="loadProjectsBtn">Load Projects</button>
+  </div>
+
+  <table id="projectsTable" style="margin-top:16px;">
+    <tr>
+      <th>Project Name</th>
+      <th>Status</th>
+      <th>Languages</th>
+      <th>Date</th>
+      <th>Action</th>
+    </tr>
+  </table>
+</div>
+
+<!-- =============== ADMIN TAB (STEP 1-2 only) =============== -->
+<div id="adminSection" style="display:none;">
+  <h2>Admin <span class="badge">Admin tools</span></h2>
+  <p class="muted">
+    This tab will show only for Admin accounts. Next step we will load all projects here.
+  </p>
+
+  <div class="row">
+    <button class="btn" id="loadAllProjectsBtn">Refresh (coming next)</button>
+  </div>
+
+  <table id="adminProjectsTable" style="margin-top:16px;">
+    <tr>
+      <th>Project Name</th>
+      <th>Status</th>
+      <th>Languages</th>
+      <th>Owner</th>
+      <th>Date</th>
+      <th>Actions</th>
+    </tr>
+  </table>
 </div>
 
 <!-- Supabase client -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <script>
+/* =====================
+   ADMIN CONFIG (STEP 1)
+===================== */
+// ✅ Put your login email here
+const ADMIN_EMAILS = [
+  "marcus9208a@gmail.com"
+];
+
+let isAdmin = false;
+
 /* =====================
    SUPABASE AUTH SETUP
 ===================== */
@@ -374,29 +341,19 @@ let currentUser = null;
 let currentProjectId = null;
 
 /* =====================
-   MULTI-BLOCK STATE
-===================== */
-function makeEmptyBlock() {
-  return { englishText: "", translations: {} };
-}
-
-let blocks = [];
-let currentBlockIndex = 0;
-
-/* =====================
    BASIC DOM SHORTCUTS
 ===================== */
 const $  = s => document.querySelector(s);
 const out = $("#out");
 const statusEl = $("#status");
 
-const loginScreen  = $("#loginScreen");
-const appShell     = $("#appShell");
-
 const tabTranslate     = $("#tabTranslate");
 const tabProjects      = $("#tabProjects");
+const tabAdmin         = $("#tabAdmin");
+
 const translateSection = $("#translateSection");
 const projectsSection  = $("#projectsSection");
+const adminSection     = $("#adminSection");
 
 const authEmail    = $("#authEmail");
 const authPassword = $("#authPassword");
@@ -420,6 +377,10 @@ function getSelectedLanguages() {
 ===================== */
 function displayLanguage(code) {
   if (code === "zh-TW") return "zh-TW (Traditional Chinese)";
+  if (code === "zh-CN") return "zh-CN (Simplified Chinese)";
+  if (code === "ja-JP") return "ja-JP (Japanese)";
+  if (code === "th-TH") return "th-TH (Thai)";
+  if (code === "vi-VN") return "vi-VN (Vietnamese)";
   return code;
 }
 
@@ -430,9 +391,7 @@ function getDisplayNameFromEmail(email) {
   if (!email) return "User";
   const raw = email.split("@")[0];
   const parts = raw.split(/[.\-_]/g).filter(Boolean);
-  const pretty = parts
-    .map(p => p.charAt(0).toUpperCase() + p.slice(1))
-    .join(" ");
+  const pretty = parts.map(p => p.charAt(0).toUpperCase() + p.slice(1)).join(" ");
   return pretty || email;
 }
 
@@ -442,23 +401,34 @@ function getDisplayNameFromEmail(email) {
 function showTranslateTab() {
   tabTranslate.classList.add("tab-active");
   tabProjects.classList.remove("tab-active");
+  tabAdmin.classList.remove("tab-active");
   translateSection.style.display = "";
   projectsSection.style.display = "none";
+  adminSection.style.display = "none";
 }
 
 function showProjectsTab() {
   tabTranslate.classList.remove("tab-active");
   tabProjects.classList.add("tab-active");
+  tabAdmin.classList.remove("tab-active");
   translateSection.style.display = "none";
   projectsSection.style.display = "";
+  adminSection.style.display = "none";
+}
+
+function showAdminTab() {
+  if (!isAdmin) return;
+  tabTranslate.classList.remove("tab-active");
+  tabProjects.classList.remove("tab-active");
+  tabAdmin.classList.add("tab-active");
+  translateSection.style.display = "none";
+  projectsSection.style.display = "none";
+  adminSection.style.display = "";
 }
 
 tabTranslate.onclick = showTranslateTab;
-tabProjects.onclick  = () => {
-  showProjectsTab();
-  const btn = $("#loadProjectsBtn");
-  if (btn) btn.click(); // auto-refresh when opening Projects tab
-};
+tabProjects.onclick  = showProjectsTab;
+tabAdmin.onclick     = showAdminTab;
 
 /* =====================
     AUTH HANDLERS
@@ -467,21 +437,43 @@ async function refreshUser() {
   const { data, error } = await supa.auth.getUser();
   if (error || !data.user) {
     currentUser = null;
+    isAdmin = false;
+
     authStatus.textContent = "Not logged in";
     authStatus.title = "";
-    appShell.style.display = "none";
-    loginScreen.style.display = "flex";
+
+    logoutBtn.style.display = "none";
+    loginBtn.style.display  = "";
+    signupBtn.style.display = "";
+
+    tabAdmin.style.display = "none";
+
+    // If user logs out while on admin tab, return to Translate
+    showTranslateTab();
     return;
   }
+
   currentUser = data.user;
   const email = currentUser.email || "";
   const displayName = getDisplayNameFromEmail(email);
 
+  // ✅ Admin flag
+  isAdmin = ADMIN_EMAILS.includes(email);
+
   authStatus.textContent = "Hi, " + displayName;
   authStatus.title = email;
 
-  loginScreen.style.display = "none";
-  appShell.style.display = "block";
+  logoutBtn.style.display = "";
+  loginBtn.style.display  = "none";
+  signupBtn.style.display = "none";
+
+  // Show admin tab only for admins
+  tabAdmin.style.display = isAdmin ? "inline-block" : "none";
+
+  // If non-admin is on admin tab somehow, push them back
+  if (!isAdmin && adminSection.style.display !== "none") {
+    showTranslateTab();
+  }
 }
 
 signupBtn.onclick = async () => {
@@ -492,7 +484,7 @@ signupBtn.onclick = async () => {
   if (error) {
     alert("Sign up error:\n" + error.message);
   } else {
-    alert("Sign up successful. You can now sign in.");
+    alert("Sign up successful. You can now log in.");
   }
 };
 
@@ -513,115 +505,20 @@ logoutBtn.onclick = async () => {
   await refreshUser();
 };
 
-/* =====================
-   BLOCK RENDER/SYNC
-===================== */
-
-function clearTranslationsTable() {
-  out.innerHTML = `
-    <tr>
-      <th>Language</th>
-      <th>Translation (editable)</th>
-      <th>Copy</th>
-    </tr>`;
-}
-
-function collectTranslations() {
-  const obj = {};
-  [...out.querySelectorAll("tr")].slice(1).forEach(tr => {
-    const t = tr.querySelectorAll("td");
-    const langCode = t[0].dataset.lang || t[0].innerText;
-    obj[langCode] = t[1].innerText;
-  });
-  return obj;
-}
-
-function syncCurrentBlockFromUI() {
-  if (!blocks[currentBlockIndex]) return;
-  blocks[currentBlockIndex].englishText = $("#en").value.trim();
-  blocks[currentBlockIndex].translations = collectTranslations();
-}
-
-function renderCurrentBlockToUI() {
-  const blk = blocks[currentBlockIndex] || makeEmptyBlock();
-  $("#en").value = blk.englishText || "";
-  clearTranslationsTable();
-  const translations = blk.translations || {};
-  const langs = Object.keys(translations);
-  if (!langs.length) return;
-
-  for (const lang of langs) {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td data-lang="${lang}">${displayLanguage(lang)}</td>
-      <td contenteditable="true">${(translations[lang] || "").replaceAll("<","&lt;")}</td>
-      <td><button class="btn btn-small copy-btn">Copy</button></td>`;
-    out.appendChild(tr);
-  }
-}
-
-function renderBlockTabs() {
-  const bar = $("#blockBar");
-  if (!bar) return;
-  bar.innerHTML = "";
-
-  const label = document.createElement("span");
-  label.className = "muted";
-  label.textContent = "Text blocks:";
-  bar.appendChild(label);
-
-  // Block tabs
-  blocks.forEach((blk, idx) => {
-    const btn = document.createElement("button");
-    btn.className = "btn btn-small block-tab" + (idx === currentBlockIndex ? " block-active" : "");
-    btn.dataset.index = idx;
-    btn.textContent = "Block " + (idx + 1);
-    bar.appendChild(btn);
-  });
-
-  // + Add block
-  const addBtn = document.createElement("button");
-  addBtn.className = "btn btn-small";
-  addBtn.id = "addBlockBtn";
-  addBtn.textContent = "+ Add block";
-  bar.appendChild(addBtn);
-
-  // Delete block
-  const delBtn = document.createElement("button");
-  delBtn.className = "btn btn-small";
-  delBtn.id = "deleteBlockBtn";
-  delBtn.textContent = "Delete block";
-  bar.appendChild(delBtn);
-}
-
-function initBlocks() {
-  blocks = [makeEmptyBlock()];
-  currentBlockIndex = 0;
-  renderBlockTabs();
-  renderCurrentBlockToUI();
-}
+window.addEventListener("load", refreshUser);
 
 /* =====================
-   ON LOAD
-===================== */
-window.addEventListener("load", () => {
-  refreshUser();
-  initBlocks();
-});
-
-/* =====================
-       TRANSLATE (CURRENT)
+       TRANSLATE
 ===================== */
 $("#translateBtn").onclick = async () => {
   const text = $("#en").value.trim();
-  if (!text) return alert("Please paste English text in the current block.");
+  if (!text) return alert("Please paste English text.");
 
   const targets = getSelectedLanguages();
   if (!targets.length) return alert("Select at least one language.");
 
-  setStatus("Translating current block…");
+  setStatus("Translating…");
   $("#translateBtn").disabled = true;
-  $("#translateAllBtn").disabled = true;
 
   try {
     const r = await fetch("/api/translate", {
@@ -633,7 +530,12 @@ $("#translateBtn").onclick = async () => {
     const j = await r.json();
     if (!r.ok) throw new Error(j.error || "Translation failed");
 
-    clearTranslationsTable();
+    out.innerHTML = `
+      <tr>
+        <th>Language</th>
+        <th>Translation (editable)</th>
+        <th>Copy</th>
+      </tr>`;
 
     for (const [lang,val] of Object.entries(j.translations||{})) {
       const tr = document.createElement("tr");
@@ -644,9 +546,6 @@ $("#translateBtn").onclick = async () => {
       out.appendChild(tr);
     }
 
-    // store result into current block
-    syncCurrentBlockFromUI();
-
     setStatus("Done.");
   } catch (err) {
     console.error(err);
@@ -654,59 +553,6 @@ $("#translateBtn").onclick = async () => {
     setStatus("Error.");
   } finally {
     $("#translateBtn").disabled = false;
-    $("#translateAllBtn").disabled = false;
-  }
-};
-
-/* =====================
-       TRANSLATE ALL BLOCKS
-===================== */
-$("#translateAllBtn").onclick = async () => {
-  // Ensure current block's text + translations are synced
-  syncCurrentBlockFromUI();
-
-  const targets = getSelectedLanguages();
-  if (!targets.length) return alert("Select at least one language.");
-
-  // Check at least one block has English text
-  const hasAnyText = blocks.some(b => (b.englishText || "").trim());
-  if (!hasAnyText) {
-    return alert("Please enter English text in at least one block.");
-  }
-
-  setStatus("Translating all blocks…");
-  $("#translateBtn").disabled = true;
-  $("#translateAllBtn").disabled = true;
-
-  try {
-    for (let i = 0; i < blocks.length; i++) {
-      const text = (blocks[i].englishText || "").trim();
-      if (!text) continue; // skip empty blocks
-
-      const r = await fetch("/api/translate", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ text, targets })
-      });
-
-      const j = await r.json();
-      if (!r.ok) {
-        throw new Error(j.error || `Translation failed on block ${i + 1}`);
-      }
-
-      blocks[i].translations = j.translations || {};
-    }
-
-    // Re-render currently active block
-    renderCurrentBlockToUI();
-    setStatus("All blocks translated.");
-  } catch (err) {
-    console.error(err);
-    alert("Translate all error:\n" + err.message);
-    setStatus("Error during translate all.");
-  } finally {
-    $("#translateBtn").disabled = false;
-    $("#translateAllBtn").disabled = false;
   }
 };
 
@@ -715,7 +561,6 @@ $("#translateAllBtn").onclick = async () => {
 ===================== */
 out.addEventListener("click", async e => {
   if (!e.target.matches(".copy-btn")) return;
-
   const text = e.target.closest("tr").querySelector("td:nth-child(2)").innerText;
   await navigator.clipboard.writeText(text);
   setStatus("Copied!");
@@ -734,7 +579,7 @@ $("#csvBtn").onclick = () => {
     alert("No translations to export.");
     return;
   }
-  const csv = rows.map(r => r.map(s=>`"${s.replaceAll('"','""')}"`).join(",")).join("\n");
+  const csv = rows.map(r => r.map(s=>`"${(s||"").replaceAll('"','""')}"`).join(",")).join("\n");
   const blob = new Blob([csv],{type:"text/csv"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
@@ -743,57 +588,51 @@ $("#csvBtn").onclick = () => {
 };
 
 /* =====================
+       HELPERS
+===================== */
+function collectTranslations() {
+  const obj = {};
+  [...out.querySelectorAll("tr")].slice(1).forEach(tr => {
+    const t = tr.querySelectorAll("td");
+    const langCode = t[0].dataset.lang || t[0].innerText;
+    obj[langCode] = t[1].innerText;
+  });
+  return obj;
+}
+
+/* =====================
       SAVE PROJECT
 ===================== */
 $("#saveProjectBtn").onclick = async () => {
-  if (!currentUser) {
-    return alert("Please sign in before saving a project.");
-  }
+  if (!currentUser) return alert("Please log in before saving a project.");
 
-  // Make sure the current block is synced with UI
-  syncCurrentBlockFromUI();
-
-  const name   = $("#projectName").value.trim();
+  const name  = $("#projectName").value.trim();
+  const enTxt = $("#en").value.trim();
   const status = $("#projectStatus").value;
   const reviewedBy = $("#reviewedBy").value.trim();
-  const langs  = getSelectedLanguages();
+  const langs = getSelectedLanguages();
 
   if (!name)  return alert("Enter project name.");
+  if (!enTxt) return alert("Enter English text.");
   if (!langs.length) return alert("Select at least one language.");
 
-  // Check at least one block has English text
-  const hasAnyText = blocks.some(b => (b.englishText || "").trim());
-  if (!hasAnyText) {
-    return alert("Please enter English text in at least one block.");
-  }
-
-  // Build payload blocks (only keep blocks that have some content)
-  const payloadBlocks = blocks
-    .map((b, idx) => ({
-      index: idx,
-      englishText: b.englishText || "",
-      translations: b.translations || {}
-    }))
-    .filter(b =>
-      b.englishText.trim() ||
-      Object.values(b.translations).some(v => (v || "").trim())
-    );
-
-  if (!payloadBlocks.length) {
-    return alert("Nothing to save. Please add text or translations.");
+  const translations = collectTranslations();
+  if (Object.keys(translations).length === 0) {
+    return alert("Translate first before saving.");
   }
 
   try {
     const r = await fetch("/api/saveProject", {
-      method: "POST",
+      method:"POST",
       headers:{"Content-Type":"application/json"},
-      body: JSON.stringify({
-        projectName: name,
-        languages: langs,
+      body:JSON.stringify({
+        projectName:name,
+        englishText:enTxt,
+        languages:langs,
+        translations,
         status,
         reviewedBy,
-        ownerId: currentUser.id,
-        blocks: payloadBlocks
+        ownerId: currentUser.id
       })
     });
 
@@ -812,50 +651,30 @@ $("#saveProjectBtn").onclick = async () => {
 ===================== */
 $("#updateProjectBtn").onclick = async () => {
   if (!currentProjectId) return alert("Load a project or save a new one first.");
-  if (!currentUser) return alert("Please sign in.");
+  if (!currentUser) return alert("Please log in.");
 
-  // Sync current block from UI
-  syncCurrentBlockFromUI();
-
-  const name   = $("#projectName").value.trim();
+  const name  = $("#projectName").value.trim();
+  const enTxt = $("#en").value.trim();
   const status = $("#projectStatus").value;
   const reviewedBy = $("#reviewedBy").value.trim();
-  const langs  = getSelectedLanguages();
+  const langs = getSelectedLanguages();
+  const translations = collectTranslations();
 
   if (!name)  return alert("Project name cannot be empty.");
-  if (!langs.length) return alert("Select at least one language.");
-
-  const hasAnyText = blocks.some(b => (b.englishText || "").trim());
-  if (!hasAnyText) {
-    return alert("Please enter English text in at least one block.");
-  }
-
-  const payloadBlocks = blocks
-    .map((b, idx) => ({
-      index: idx,
-      englishText: b.englishText || "",
-      translations: b.translations || {}
-    }))
-    .filter(b =>
-      b.englishText.trim() ||
-      Object.values(b.translations).some(v => (v || "").trim())
-    );
-
-  if (!payloadBlocks.length) {
-    return alert("Nothing to update. Please add text or translations.");
-  }
+  if (!enTxt) return alert("English text cannot be empty.");
 
   try {
     const r = await fetch("/api/updateProject", {
       method:"POST",
       headers:{"Content-Type":"application/json"},
       body:JSON.stringify({
-        projectId: currentProjectId,
-        projectName: name,
-        languages: langs,
+        projectId:currentProjectId,
+        projectName:name,
+        englishText:enTxt,
+        languages:langs,
+        translations,
         status,
-        reviewedBy,
-        blocks: payloadBlocks
+        reviewedBy
       })
     });
 
@@ -872,9 +691,7 @@ $("#updateProjectBtn").onclick = async () => {
    LOAD PROJECT LIST
 ===================== */
 $("#loadProjectsBtn").onclick = async () => {
-  if (!currentUser) {
-    return alert("Please sign in to load your projects.");
-  }
+  if (!currentUser) return alert("Please log in to load your projects.");
 
   const tbl = $("#projectsTable");
   tbl.innerHTML = `
@@ -883,7 +700,7 @@ $("#loadProjectsBtn").onclick = async () => {
       <th>Status</th>
       <th>Languages</th>
       <th>Date</th>
-      <th>Actions</th>
+      <th>Action</th>
     </tr>`;
 
   try {
@@ -896,15 +713,8 @@ $("#loadProjectsBtn").onclick = async () => {
 
     let projects = j.projects || [];
 
-    if (statusVal) {
-      projects = projects.filter(p => p.status === statusVal);
-    }
-
-    if (searchTerm) {
-      projects = projects.filter(p =>
-        (p.project_name || "").toLowerCase().includes(searchTerm)
-      );
-    }
+    if (statusVal) projects = projects.filter(p => p.status === statusVal);
+    if (searchTerm) projects = projects.filter(p => (p.project_name || "").toLowerCase().includes(searchTerm));
 
     for (const p of projects) {
       const langs = (p.languages || []).map(displayLanguage);
@@ -914,10 +724,7 @@ $("#loadProjectsBtn").onclick = async () => {
         <td>${p.status}</td>
         <td>${langs.join(", ")}</td>
         <td>${new Date(p.created_at).toLocaleString()}</td>
-        <td>
-          <button class="btn btn-small load-btn" data-id="${p.id}">Load</button>
-          <button class="btn btn-small delete-project-btn" data-id="${p.id}">Delete</button>
-        </td>`;
+        <td><button class="btn btn-small load-btn" data-id="${p.id}">Load</button></td>`;
       tbl.appendChild(tr);
     }
   } catch (err) {
@@ -926,86 +733,9 @@ $("#loadProjectsBtn").onclick = async () => {
 };
 
 /* =====================
-   BODY CLICK HANDLER
+   LOAD SINGLE PROJECT
 ===================== */
 document.body.addEventListener("click", async (e) => {
-  // Handle + Add block
-  if (e.target.matches("#addBlockBtn")) {
-    syncCurrentBlockFromUI();
-    blocks.push(makeEmptyBlock());
-    currentBlockIndex = blocks.length - 1;
-    renderBlockTabs();
-    renderCurrentBlockToUI();
-    return;
-  }
-
-  // Handle Delete block
-  if (e.target.matches("#deleteBlockBtn")) {
-    if (!blocks.length) return;
-
-    // If only 1 block, just clear it instead of deleting
-    if (blocks.length === 1) {
-      blocks[0] = makeEmptyBlock();
-      currentBlockIndex = 0;
-      renderBlockTabs();
-      renderCurrentBlockToUI();
-      return;
-    }
-
-    const ok = confirm("Delete this text block?");
-    if (!ok) return;
-
-    // Remove current block
-    blocks.splice(currentBlockIndex, 1);
-
-    // Move index safely
-    if (currentBlockIndex >= blocks.length) {
-      currentBlockIndex = blocks.length - 1;
-    }
-    if (currentBlockIndex < 0) currentBlockIndex = 0;
-
-    renderBlockTabs();
-    renderCurrentBlockToUI();
-    return;
-  }
-
-  // Handle clicking on a block tab
-  if (e.target.matches(".block-tab")) {
-    const newIndex = parseInt(e.target.dataset.index, 10);
-    if (!Number.isNaN(newIndex) && newIndex !== currentBlockIndex) {
-      syncCurrentBlockFromUI();
-      currentBlockIndex = newIndex;
-      renderBlockTabs();
-      renderCurrentBlockToUI();
-    }
-    return;
-  }
-
-  // Handle deleting a project
-  if (e.target.matches(".delete-project-btn")) {
-    const id = e.target.dataset.id;
-    if (!id) return;
-    const ok = confirm("Delete this project? This cannot be undone.");
-    if (!ok) return;
-
-    try {
-      const r = await fetch("/api/deleteProject", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
-        body: JSON.stringify({ id })
-      });
-      const j = await r.json();
-      if (!r.ok) throw new Error(j.error);
-      alert("Project deleted.");
-      const btn = $("#loadProjectsBtn");
-      if (btn) btn.click(); // refresh list
-    } catch (err) {
-      alert("Delete error:\n" + err.message);
-    }
-    return;
-  }
-
-  // Handle loading a project from Projects table
   if (!e.target.matches(".load-btn")) return;
 
   const id = e.target.dataset.id;
@@ -1016,19 +746,18 @@ document.body.addEventListener("click", async (e) => {
     if (!r.ok) throw new Error(j.error);
 
     const proj = j.project;
-    const rows = j.rows || [];
+    const row  = j.rows[0];
 
     currentProjectId = proj.id;
 
     $("#projectName").value   = proj.project_name || "";
     $("#projectStatus").value = proj.status || "Draft";
-
-    const firstRow = rows[0] || null;
-    $("#reviewedBy").value    = firstRow?.reviewed_by || "";
+    $("#en").value            = row?.english_text || "";
+    $("#reviewedBy").value    = row?.reviewed_by || "";
 
     const infoEl = $("#reviewedInfo");
-    if (firstRow?.reviewed_at) {
-      infoEl.textContent = "Reviewed on: " + new Date(firstRow.reviewed_at).toLocaleString();
+    if (row?.reviewed_at) {
+      infoEl.textContent = "Reviewed on: " + new Date(row.reviewed_at).toLocaleString();
     } else {
       infoEl.textContent = "";
     }
@@ -1038,32 +767,40 @@ document.body.addEventListener("click", async (e) => {
       cb.checked = langs.includes(cb.value);
     });
 
-    // Build blocks from rows
-    if (!rows.length) {
-      blocks = [makeEmptyBlock()];
-    } else {
-      blocks = rows.map(row => ({
-        englishText: row.english_text || "",
-        translations: {
-          "zh-TW": row.zh_tw || "",
-          "zh-CN": row.zh_cn || "",
-          "ja-JP": row.ja_jp || "",
-          "th-TH": row.th_th || "",
-          "vi-VN": row.vi_vn || ""
-        }
-      }));
+    out.innerHTML = `
+      <tr>
+        <th>Language</th>
+        <th>Translation (editable)</th>
+        <th>Copy</th>
+      </tr>`;
+
+    const mapping = {
+      "zh-TW": row?.zh_tw,
+      "zh-CN": row?.zh_cn,
+      "ja-JP": row?.ja_jp,
+      "th-TH": row?.th_th,
+      "vi-VN": row?.vi_vn
+    };
+
+    for (const lang of langs) {
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td data-lang="${lang}">${displayLanguage(lang)}</td>
+        <td contenteditable="true">${(mapping[lang]||"").replaceAll("<","&lt;")}</td>
+        <td><button class="btn btn-small copy-btn">Copy</button></td>`;
+      out.appendChild(tr);
     }
 
-    currentBlockIndex = 0;
-    renderBlockTabs();
-    renderCurrentBlockToUI();
-
     showTranslateTab();
-
   } catch (err) {
     alert("Error loading project:\n" + err.message);
   }
 });
+
+// Admin “Refresh” button placeholder for now (Step 3 will implement)
+$("#loadAllProjectsBtn").onclick = () => {
+  alert("Next step: Admin will load ALL projects here.");
+};
 </script>
 
 </body>

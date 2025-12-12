@@ -8,11 +8,7 @@
 <style>
   * { box-sizing: border-box; }
 
-  html, body {
-    margin: 0;
-    padding: 0;
-    height: 100%;
-  }
+  html, body { margin: 0; padding: 0; height: 100%; }
 
   body {
     font-family: system-ui, Arial, sans-serif;
@@ -22,11 +18,9 @@
     color: white;
   }
 
-  .muted {
-    color: rgba(255,255,255,0.75);
-    font-size: 13px;
-    margin: 0 0 16px;
-  }
+  h1 { font-size: 26px; margin: 0 0 8px; }
+
+  .muted { color: rgba(255,255,255,0.75); font-size: 13px; margin: 0 0 16px; }
 
   /* Centered login screen */
   #loginScreen {
@@ -47,11 +41,7 @@
     backdrop-filter: blur(10px);
   }
 
-  .login-card h1 {
-    font-size: 22px;
-    margin: 0 0 6px;
-  }
-
+  .login-card h1 { font-size: 22px; margin-bottom: 6px; }
   .login-card p { margin: 0 0 18px; }
 
   .login-card input[type="text"],
@@ -66,9 +56,7 @@
     margin-bottom: 10px;
   }
 
-  .login-card input::placeholder {
-    color: rgba(255,255,255,0.7);
-  }
+  .login-card input::placeholder { color: rgba(255,255,255,0.7); }
 
   /* Buttons */
   .btn {
@@ -81,67 +69,27 @@
     font-size: 14px;
   }
 
-  .btn-primary {
-    font-weight: 700;
-    text-transform: uppercase;
-  }
-
+  .btn-primary { font-weight: 700; text-transform: uppercase; }
   .btn-right { margin-left: auto; }
-
-  .btn-small {
-    padding: 6px 12px;
-    font-size: 12px;
-  }
+  .btn-small { padding: 6px 12px; font-size: 12px; }
 
   .btn:hover:not(:disabled) { background: rgba(255,255,255,0.15); }
+  .btn:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  .btn:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  .row {
-    display: flex;
-    gap: 16px;
-    flex-wrap: wrap;
-    margin: 16px 0;
-    align-items: center;
-  }
+  .row { display: flex; gap: 16px; flex-wrap: wrap; margin: 16px 0; align-items: center; }
 
   /* Main app shell */
-  #appShell {
-    display: none; /* hidden until logged in */
-    padding: 32px 40px 40px;
-  }
+  #appShell { display: none; padding: 32px 40px 40px; }
 
-  /* Top bar inside app */
-  #topBar {
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 12px;
-  }
+  /* Top bar */
+  #topBar { display: flex; align-items: center; gap: 16px; margin-bottom: 12px; }
+  #topBarTitle { font-size: 20px; font-weight: 600; }
 
-  #topBarTitle {
-    font-size: 20px;
-    font-weight: 600;
-  }
-
-  /* bigger "Hi, Marcus" */
   #authStatus {
     margin-left: auto;
     font-weight: 700;
-    font-size: 18px; /* increased */
+    font-size: 18px; /* bigger "Hi, Marcus" */
     color: #fff;
-  }
-
-  #rolePill {
-    font-size: 12px;
-    padding: 4px 10px;
-    border: 1px solid rgba(255,255,255,0.35);
-    border-radius: 999px;
-    background: rgba(0,0,0,0.25);
-    color: rgba(255,255,255,0.9);
   }
 
   /* Tabs */
@@ -163,10 +111,7 @@
     font-size: 14px;
   }
 
-  .tab-btn.tab-active {
-    background: rgba(255,255,255,0.18);
-    color: white;
-  }
+  .tab-btn.tab-active { background: rgba(255,255,255,0.18); color: white; }
 
   textarea {
     width: 100%;
@@ -208,37 +153,28 @@
     vertical-align: top;
   }
 
-  th {
-    background: rgba(0,0,0,0.35);
-    font-weight: bold;
-  }
+  th { background: rgba(0,0,0,0.35); font-weight: bold; }
 
   #translateSection, #projectsSection { margin-top: 12px; }
 
-  /* Block bar (multi-text) */
-  #blockBar {
-    display: flex;
-    align-items: center;
-    gap: 8px;
-  }
-
+  /* Block bar */
+  #blockBar { display: flex; align-items: center; gap: 8px; }
   .block-active { background: rgba(255,255,255,0.3); }
 
-  .switch {
-    display: inline-flex;
-    align-items: center;
-    gap: 8px;
-    user-select: none;
+  /* Admin badge */
+  .badge {
+    padding: 4px 10px;
+    border-radius: 999px;
+    font-size: 12px;
+    border: 1px solid rgba(255,255,255,0.4);
+    background: rgba(0,0,0,0.2);
   }
-
-  .switch input { transform: translateY(1px); }
-
 </style>
 </head>
 
 <body>
 
-<!-- ========== LOGIN SCREEN ========== -->
+<!-- LOGIN SCREEN -->
 <div id="loginScreen">
   <div class="login-card">
     <h1>AI Localization Tool</h1>
@@ -258,25 +194,23 @@
   </div>
 </div>
 
-<!-- ========== MAIN APP ========== -->
+<!-- MAIN APP -->
 <div id="appShell">
-  <!-- Top bar -->
   <div id="topBar">
     <div id="topBarTitle">AI Localization Web App</div>
     <span id="authStatus" class="muted">Not logged in</span>
-    <span id="rolePill" style="display:none;">Role: user</span>
+    <span id="roleBadge" class="badge" style="display:none;"></span>
     <button class="btn" id="logoutBtn">Log out</button>
   </div>
 
   <p class="muted">Translate marketing copy, save projects, and manage previous work.</p>
 
-  <!-- TABS -->
   <div class="tabs">
     <button class="tab-btn tab-active" id="tabTranslate">Translate</button>
     <button class="tab-btn" id="tabProjects">Projects</button>
   </div>
 
-  <!-- =============== TRANSLATE TAB =============== -->
+  <!-- TRANSLATE TAB -->
   <div id="translateSection">
     <div class="row">
       <label>
@@ -301,7 +235,6 @@
 
     <p id="reviewedInfo" class="muted"></p>
 
-    <!-- Text blocks bar -->
     <div class="row" id="blockBar"></div>
 
     <label>English text</label>
@@ -332,11 +265,10 @@
     </table>
   </div>
 
-  <!-- =============== PROJECTS TAB =============== -->
+  <!-- PROJECTS TAB -->
   <div id="projectsSection" style="display:none;">
     <h2>Projects</h2>
 
-    <!-- Filters row -->
     <div class="row">
       <input type="text" id="projectSearch" placeholder="Search project name...">
       <select id="statusFilter">
@@ -347,9 +279,9 @@
       </select>
 
       <!-- Admin-only toggle -->
-      <label class="switch" id="adminToggleWrap" style="display:none;">
-        <input type="checkbox" id="viewAllToggle">
-        <span class="muted" style="margin:0;">View all projects (Admin)</span>
+      <label id="adminViewWrap" style="display:none; gap:8px; align-items:center;">
+        <input type="checkbox" id="adminViewAll">
+        <span class="muted" style="margin:0;">Admin view (all projects)</span>
       </label>
 
       <button class="btn" id="loadProjectsBtn">Refresh</button>
@@ -367,74 +299,58 @@
   </div>
 </div>
 
-<!-- Supabase client -->
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script>
-/* =====================
-   SUPABASE AUTH SETUP
-===================== */
 const SUPABASE_URL = "https://dtctdmsdeurllyflwjwk.supabase.co";
 const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImR0Y3RkbXNkZXVybGx5Zmx3andrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NjMzNjM3NzgsImV4cCI6MjA3ODkzOTc3OH0.VgLKd9iSIzTEtHwFkaD-5x1QQE6ir8g4CasmgvTtCGI";
 const supa = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
 let currentUser = null;
 let currentProjectId = null;
-let myRole = "user"; // "user" | "admin"
+let myRole = "user"; // user | admin (we only need these 2 right now)
 
-/* =====================
-   MULTI-BLOCK STATE
-===================== */
-function makeEmptyBlock() { return { englishText: "", translations: {} }; }
+function makeEmptyBlock(){ return { englishText: "", translations: {} }; }
 let blocks = [];
 let currentBlockIndex = 0;
 
-/* =====================
-   BASIC DOM SHORTCUTS
-===================== */
-const $  = s => document.querySelector(s);
+const $ = s => document.querySelector(s);
 const out = $("#out");
 const statusEl = $("#status");
 
-const loginScreen  = $("#loginScreen");
-const appShell     = $("#appShell");
+const loginScreen = $("#loginScreen");
+const appShell = $("#appShell");
 
-const tabTranslate     = $("#tabTranslate");
-const tabProjects      = $("#tabProjects");
+const tabTranslate = $("#tabTranslate");
+const tabProjects  = $("#tabProjects");
 const translateSection = $("#translateSection");
 const projectsSection  = $("#projectsSection");
 
-const authEmail    = $("#authEmail");
+const authEmail = $("#authEmail");
 const authPassword = $("#authPassword");
-const signupBtn    = $("#signupBtn");
-const loginBtn     = $("#loginBtn");
-const logoutBtn    = $("#logoutBtn");
-const authStatus   = $("#authStatus");
-const rolePill     = $("#rolePill");
+const signupBtn = $("#signupBtn");
+const loginBtn  = $("#loginBtn");
+const logoutBtn = $("#logoutBtn");
+const authStatus = $("#authStatus");
+const roleBadge = $("#roleBadge");
 
 const projectSearch = $("#projectSearch");
 const statusFilter  = $("#statusFilter");
 
-const adminToggleWrap = $("#adminToggleWrap");
-const viewAllToggle   = $("#viewAllToggle");
+const adminViewWrap = $("#adminViewWrap");
+const adminViewAll  = $("#adminViewAll");
 
 function setStatus(msg){ statusEl.textContent = msg || ""; }
 
-function getSelectedLanguages() {
+function getSelectedLanguages(){
   return [...document.querySelectorAll('#langs input[type=checkbox]:checked')].map(x => x.value);
 }
 
-/* =====================
-   LANGUAGE DISPLAY MAP
-===================== */
-function displayLanguage(code) {
+function displayLanguage(code){
   if (code === "zh-TW") return "zh-TW (Traditional Chinese)";
   return code;
 }
 
-/* =====================
-   DISPLAY NAME HELPER
-===================== */
-function getDisplayNameFromEmail(email) {
+function getDisplayNameFromEmail(email){
   if (!email) return "User";
   const raw = email.split("@")[0];
   const parts = raw.split(/[.\-_]/g).filter(Boolean);
@@ -442,42 +358,34 @@ function getDisplayNameFromEmail(email) {
   return pretty || email;
 }
 
-/* =====================
-       TABS LOGIC
-===================== */
-function showTranslateTab() {
+/* Tabs */
+function showTranslateTab(){
   tabTranslate.classList.add("tab-active");
   tabProjects.classList.remove("tab-active");
   translateSection.style.display = "";
   projectsSection.style.display = "none";
 }
-
-function showProjectsTab() {
+function showProjectsTab(){
   tabTranslate.classList.remove("tab-active");
   tabProjects.classList.add("tab-active");
   translateSection.style.display = "none";
   projectsSection.style.display = "";
 }
-
 tabTranslate.onclick = showTranslateTab;
-tabProjects.onclick  = () => {
+tabProjects.onclick = () => {
   showProjectsTab();
   const btn = $("#loadProjectsBtn");
   if (btn) btn.click();
 };
 
-/* =====================
-    AUTH + ROLE
-===================== */
-async function fetchMyRole() {
+/* Role fetch (server decides) */
+async function refreshRole(){
   myRole = "user";
-  rolePill.style.display = "none";
-  adminToggleWrap.style.display = "none";
+  roleBadge.style.display = "none";
+  adminViewWrap.style.display = "none";
+  adminViewAll.checked = false;
 
-  // Optional: hide Approved for non-admins (UI only)
-  // We'll enforce properly in API later too.
-  const approvedOpt = [...$("#projectStatus").options].find(o => o.value === "Approved");
-  if (approvedOpt) approvedOpt.disabled = true;
+  if (!currentUser) return;
 
   try {
     const r = await fetch("/api/getMyRole");
@@ -487,16 +395,15 @@ async function fetchMyRole() {
     }
   } catch (_) {}
 
-  rolePill.textContent = "Role: " + myRole;
-  rolePill.style.display = "";
-
   if (myRole === "admin") {
-    adminToggleWrap.style.display = "";
-    if (approvedOpt) approvedOpt.disabled = false;
+    roleBadge.style.display = "";
+    roleBadge.textContent = "Admin";
+    adminViewWrap.style.display = "flex";
   }
 }
 
-async function refreshUser() {
+/* Auth */
+async function refreshUser(){
   const { data, error } = await supa.auth.getUser();
   if (error || !data.user) {
     currentUser = null;
@@ -504,7 +411,7 @@ async function refreshUser() {
     authStatus.title = "";
     appShell.style.display = "none";
     loginScreen.style.display = "flex";
-    rolePill.style.display = "none";
+    roleBadge.style.display = "none";
     return;
   }
 
@@ -518,12 +425,12 @@ async function refreshUser() {
   loginScreen.style.display = "none";
   appShell.style.display = "block";
 
-  await fetchMyRole();
+  await refreshRole();
 }
 
 signupBtn.onclick = async () => {
   const email = authEmail.value.trim();
-  const pw    = authPassword.value.trim();
+  const pw = authPassword.value.trim();
   if (!email || !pw) return alert("Enter email and password.");
   const { error } = await supa.auth.signUp({ email, password: pw });
   if (error) alert("Sign up error:\n" + error.message);
@@ -532,7 +439,7 @@ signupBtn.onclick = async () => {
 
 loginBtn.onclick = async () => {
   const email = authEmail.value.trim();
-  const pw    = authPassword.value.trim();
+  const pw = authPassword.value.trim();
   if (!email || !pw) return alert("Enter email and password.");
   const { error } = await supa.auth.signInWithPassword({ email, password: pw });
   if (error) alert("Login error:\n" + error.message);
@@ -544,10 +451,8 @@ logoutBtn.onclick = async () => {
   await refreshUser();
 };
 
-/* =====================
-   BLOCK RENDER/SYNC
-===================== */
-function clearTranslationsTable() {
+/* Blocks */
+function clearTranslationsTable(){
   out.innerHTML = `
     <tr>
       <th>Language</th>
@@ -555,8 +460,7 @@ function clearTranslationsTable() {
       <th>Copy</th>
     </tr>`;
 }
-
-function collectTranslations() {
+function collectTranslations(){
   const obj = {};
   [...out.querySelectorAll("tr")].slice(1).forEach(tr => {
     const t = tr.querySelectorAll("td");
@@ -565,18 +469,15 @@ function collectTranslations() {
   });
   return obj;
 }
-
-function syncCurrentBlockFromUI() {
+function syncCurrentBlockFromUI(){
   if (!blocks[currentBlockIndex]) return;
   blocks[currentBlockIndex].englishText = $("#en").value.trim();
   blocks[currentBlockIndex].translations = collectTranslations();
 }
-
-function renderCurrentBlockToUI() {
+function renderCurrentBlockToUI(){
   const blk = blocks[currentBlockIndex] || makeEmptyBlock();
   $("#en").value = blk.englishText || "";
   clearTranslationsTable();
-
   const translations = blk.translations || {};
   const langs = Object.keys(translations);
   if (!langs.length) return;
@@ -590,10 +491,8 @@ function renderCurrentBlockToUI() {
     out.appendChild(tr);
   }
 }
-
-function renderBlockTabs() {
+function renderBlockTabs(){
   const bar = $("#blockBar");
-  if (!bar) return;
   bar.innerHTML = "";
 
   const label = document.createElement("span");
@@ -621,25 +520,14 @@ function renderBlockTabs() {
   delBtn.textContent = "Delete block";
   bar.appendChild(delBtn);
 }
-
-function initBlocks() {
+function initBlocks(){
   blocks = [makeEmptyBlock()];
   currentBlockIndex = 0;
   renderBlockTabs();
   renderCurrentBlockToUI();
 }
 
-/* =====================
-   ON LOAD
-===================== */
-window.addEventListener("load", async () => {
-  await refreshUser();
-  initBlocks();
-});
-
-/* =====================
-   TRANSLATE (CURRENT)
-===================== */
+/* Translate current */
 $("#translateBtn").onclick = async () => {
   const text = $("#en").value.trim();
   if (!text) return alert("Please paste English text in the current block.");
@@ -654,15 +542,14 @@ $("#translateBtn").onclick = async () => {
   try {
     const r = await fetch("/api/translate", {
       method: "POST",
-      headers: {"Content-Type": "application/json"},
+      headers: {"Content-Type":"application/json"},
       body: JSON.stringify({ text, targets })
     });
-
     const j = await r.json();
     if (!r.ok) throw new Error(j.error || "Translation failed");
 
     clearTranslationsTable();
-    for (const [lang,val] of Object.entries(j.translations||{})) {
+    for (const [lang, val] of Object.entries(j.translations || {})) {
       const tr = document.createElement("tr");
       tr.innerHTML = `
         <td data-lang="${lang}">${displayLanguage(lang)}</td>
@@ -674,7 +561,6 @@ $("#translateBtn").onclick = async () => {
     syncCurrentBlockFromUI();
     setStatus("Done.");
   } catch (err) {
-    console.error(err);
     alert("Translation error:\n" + err.message);
     setStatus("Error.");
   } finally {
@@ -683,15 +569,12 @@ $("#translateBtn").onclick = async () => {
   }
 };
 
-/* =====================
-   TRANSLATE ALL BLOCKS
-===================== */
+/* Translate all blocks */
 $("#translateAllBtn").onclick = async () => {
   syncCurrentBlockFromUI();
 
   const targets = getSelectedLanguages();
   if (!targets.length) return alert("Select at least one language.");
-
   const hasAnyText = blocks.some(b => (b.englishText || "").trim());
   if (!hasAnyText) return alert("Please enter English text in at least one block.");
 
@@ -700,25 +583,23 @@ $("#translateAllBtn").onclick = async () => {
   $("#translateAllBtn").disabled = true;
 
   try {
-    for (let i = 0; i < blocks.length; i++) {
+    for (let i=0; i<blocks.length; i++) {
       const text = (blocks[i].englishText || "").trim();
       if (!text) continue;
 
       const r = await fetch("/api/translate", {
-        method: "POST",
-        headers: {"Content-Type": "application/json"},
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
         body: JSON.stringify({ text, targets })
       });
-
       const j = await r.json();
-      if (!r.ok) throw new Error(j.error || `Translation failed on block ${i + 1}`);
+      if (!r.ok) throw new Error(j.error || `Translation failed on block ${i+1}`);
       blocks[i].translations = j.translations || {};
     }
 
     renderCurrentBlockToUI();
     setStatus("All blocks translated.");
   } catch (err) {
-    console.error(err);
     alert("Translate all error:\n" + err.message);
     setStatus("Error during translate all.");
   } finally {
@@ -727,9 +608,7 @@ $("#translateAllBtn").onclick = async () => {
   }
 };
 
-/* =====================
-   COPY
-===================== */
+/* Copy */
 out.addEventListener("click", async e => {
   if (!e.target.matches(".copy-btn")) return;
   const text = e.target.closest("tr").querySelector("td:nth-child(2)").innerText;
@@ -737,9 +616,7 @@ out.addEventListener("click", async e => {
   setStatus("Copied!");
 });
 
-/* =====================
-   CSV EXPORT (CURRENT BLOCK)
-===================== */
+/* CSV Export (current table only, same as your version) */
 $("#csvBtn").onclick = () => {
   const rows = [["Language","Translation"]];
   [...out.querySelectorAll("tr")].slice(1).forEach(tr => {
@@ -747,8 +624,7 @@ $("#csvBtn").onclick = () => {
     rows.push([t[0].innerText, t[1].innerText]);
   });
   if (rows.length === 1) return alert("No translations to export.");
-
-  const csv = rows.map(r => r.map(s=>`"${String(s||"").replaceAll('"','""')}"`).join(",")).join("\n");
+  const csv = rows.map(r => r.map(s=>`"${String(s).replaceAll('"','""')}"`).join(",")).join("\n");
   const blob = new Blob([csv],{type:"text/csv"});
   const a = document.createElement("a");
   a.href = URL.createObjectURL(blob);
@@ -756,21 +632,24 @@ $("#csvBtn").onclick = () => {
   a.click();
 };
 
-/* =====================
-   SAVE PROJECT
-===================== */
+/* Save */
 $("#saveProjectBtn").onclick = async () => {
   if (!currentUser) return alert("Please sign in before saving a project.");
 
   syncCurrentBlockFromUI();
 
-  const name   = $("#projectName").value.trim();
+  const name = $("#projectName").value.trim();
   const status = $("#projectStatus").value;
   const reviewedBy = $("#reviewedBy").value.trim();
-  const langs  = getSelectedLanguages();
+  const langs = getSelectedLanguages();
 
   if (!name) return alert("Enter project name.");
   if (!langs.length) return alert("Select at least one language.");
+
+  // Non-admin cannot set Approved (admin-only rule)
+  if (status === "Approved" && myRole !== "admin") {
+    return alert("Only Admin can set status to Approved.");
+  }
 
   const hasAnyText = blocks.some(b => (b.englishText || "").trim());
   if (!hasAnyText) return alert("Please enter English text in at least one block.");
@@ -783,8 +662,8 @@ $("#saveProjectBtn").onclick = async () => {
 
   try {
     const r = await fetch("/api/saveProject", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
       body: JSON.stringify({
         projectName: name,
         languages: langs,
@@ -794,7 +673,6 @@ $("#saveProjectBtn").onclick = async () => {
         blocks: payloadBlocks
       })
     });
-
     const j = await r.json();
     if (!r.ok) throw new Error(j.error);
     currentProjectId = j.projectId;
@@ -804,25 +682,24 @@ $("#saveProjectBtn").onclick = async () => {
   }
 };
 
-/* =====================
-   UPDATE PROJECT
-===================== */
+/* Update */
 $("#updateProjectBtn").onclick = async () => {
   if (!currentProjectId) return alert("Load a project or save a new one first.");
   if (!currentUser) return alert("Please sign in.");
 
   syncCurrentBlockFromUI();
 
-  const name   = $("#projectName").value.trim();
+  const name = $("#projectName").value.trim();
   const status = $("#projectStatus").value;
   const reviewedBy = $("#reviewedBy").value.trim();
-  const langs  = getSelectedLanguages();
+  const langs = getSelectedLanguages();
 
   if (!name) return alert("Project name cannot be empty.");
   if (!langs.length) return alert("Select at least one language.");
 
-  const hasAnyText = blocks.some(b => (b.englishText || "").trim());
-  if (!hasAnyText) return alert("Please enter English text in at least one block.");
+  if (status === "Approved" && myRole !== "admin") {
+    return alert("Only Admin can set status to Approved.");
+  }
 
   const payloadBlocks = blocks
     .map((b, idx) => ({ index: idx, englishText: b.englishText || "", translations: b.translations || {} }))
@@ -832,8 +709,8 @@ $("#updateProjectBtn").onclick = async () => {
 
   try {
     const r = await fetch("/api/updateProject", {
-      method: "POST",
-      headers: {"Content-Type":"application/json"},
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
       body: JSON.stringify({
         projectId: currentProjectId,
         projectName: name,
@@ -843,7 +720,6 @@ $("#updateProjectBtn").onclick = async () => {
         blocks: payloadBlocks
       })
     });
-
     const j = await r.json();
     if (!r.ok) throw new Error(j.error);
     alert("Project updated!");
@@ -852,37 +728,38 @@ $("#updateProjectBtn").onclick = async () => {
   }
 };
 
-/* =====================
-   LOAD PROJECT LIST
-   - user: own projects
-   - admin: can toggle all projects
-===================== */
-async function loadProjects() {
+/* Load projects list (supports admin toggle without new functions) */
+async function loadProjects(){
   if (!currentUser) return alert("Please sign in to load your projects.");
 
   const tbl = $("#projectsTable");
+  const isAdminView = (myRole === "admin" && adminViewAll.checked);
+
+  // Header changes (Owner column only in admin view)
   tbl.innerHTML = `
     <tr>
       <th>Project Name</th>
+      ${isAdminView ? "<th>Owner</th>" : ""}
       <th>Status</th>
       <th>Languages</th>
       <th>Date</th>
       <th>Actions</th>
     </tr>`;
 
-  const searchTerm = (projectSearch.value || "").toLowerCase();
-  const statusVal  = statusFilter.value;
-
-  const viewAll = (myRole === "admin") && !!viewAllToggle.checked;
-
-  const qs = new URLSearchParams();
-  if (!viewAll) qs.set("ownerId", currentUser.id);
-  else qs.set("all", "1"); // admin view all
-
   try {
+    const qs = new URLSearchParams();
+    // normal users: their own projects
+    qs.set("ownerId", currentUser.id);
+
+    // admin view: tell backend to return all (backend must verify admin role)
+    if (isAdminView) qs.set("adminAll", "1");
+
     const r = await fetch("/api/getProjects?" + qs.toString());
     const j = await r.json();
     if (!r.ok) throw new Error(j.error);
+
+    const searchTerm = (projectSearch.value || "").toLowerCase();
+    const statusVal = statusFilter.value;
 
     let projects = j.projects || [];
 
@@ -893,12 +770,18 @@ async function loadProjects() {
       const langs = (p.languages || []).map(displayLanguage);
       const tr = document.createElement("tr");
 
-      const approveBtn = (myRole === "admin" && p.status !== "Approved")
+      const ownerCell = isAdminView
+        ? `<td>${p.owner_email || p.owner_id || ""}</td>`
+        : "";
+
+      // Admin can "Approve" quickly (calls same endpoint, backend must verify admin)
+      const approveBtn = (myRole === "admin")
         ? `<button class="btn btn-small approve-project-btn" data-id="${p.id}">Approve</button>`
         : "";
 
       tr.innerHTML = `
         <td>${p.project_name}</td>
+        ${ownerCell}
         <td>${p.status}</td>
         <td>${langs.join(", ")}</td>
         <td>${new Date(p.created_at).toLocaleString()}</td>
@@ -915,15 +798,10 @@ async function loadProjects() {
 }
 
 $("#loadProjectsBtn").onclick = loadProjects;
-projectSearch.addEventListener("input", () => { if (projectsSection.style.display !== "none") loadProjects(); });
-statusFilter.addEventListener("change", () => { if (projectsSection.style.display !== "none") loadProjects(); });
-viewAllToggle?.addEventListener("change", () => { if (projectsSection.style.display !== "none") loadProjects(); });
+adminViewAll.onchange = () => { const btn = $("#loadProjectsBtn"); if (btn) btn.click(); };
 
-/* =====================
-   BODY CLICK HANDLER
-===================== */
+/* Body click handler */
 document.body.addEventListener("click", async (e) => {
-  // Add block
   if (e.target.matches("#addBlockBtn")) {
     syncCurrentBlockFromUI();
     blocks.push(makeEmptyBlock());
@@ -933,7 +811,6 @@ document.body.addEventListener("click", async (e) => {
     return;
   }
 
-  // Delete block
   if (e.target.matches("#deleteBlockBtn")) {
     if (!blocks.length) return;
     if (blocks.length === 1) {
@@ -944,17 +821,14 @@ document.body.addEventListener("click", async (e) => {
       return;
     }
     if (!confirm("Delete this text block?")) return;
-
     blocks.splice(currentBlockIndex, 1);
     if (currentBlockIndex >= blocks.length) currentBlockIndex = blocks.length - 1;
     if (currentBlockIndex < 0) currentBlockIndex = 0;
-
     renderBlockTabs();
     renderCurrentBlockToUI();
     return;
   }
 
-  // Click block tab
   if (e.target.matches(".block-tab")) {
     const newIndex = parseInt(e.target.dataset.index, 10);
     if (!Number.isNaN(newIndex) && newIndex !== currentBlockIndex) {
@@ -966,7 +840,6 @@ document.body.addEventListener("click", async (e) => {
     return;
   }
 
-  // Delete project
   if (e.target.matches(".delete-project-btn")) {
     const id = e.target.dataset.id;
     if (!id) return;
@@ -974,8 +847,8 @@ document.body.addEventListener("click", async (e) => {
 
     try {
       const r = await fetch("/api/deleteProject", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
         body: JSON.stringify({ id })
       });
       const j = await r.json();
@@ -988,29 +861,27 @@ document.body.addEventListener("click", async (e) => {
     return;
   }
 
-  // Admin approve project
   if (e.target.matches(".approve-project-btn")) {
     const id = e.target.dataset.id;
     if (!id) return;
-    if (myRole !== "admin") return alert("Only Admin can approve.");
+    if (myRole !== "admin") return alert("Admin only.");
 
     try {
-      const r = await fetch("/api/admin/setProjectStatus", {
-        method: "POST",
-        headers: {"Content-Type":"application/json"},
+      const r = await fetch("/api/setProjectStatus", {
+        method:"POST",
+        headers:{"Content-Type":"application/json"},
         body: JSON.stringify({ projectId: id, status: "Approved" })
       });
       const j = await r.json();
       if (!r.ok) throw new Error(j.error);
-      await loadProjects();
       alert("Approved.");
+      await loadProjects();
     } catch (err) {
       alert("Approve error:\n" + err.message);
     }
     return;
   }
 
-  // Load project
   if (!e.target.matches(".load-btn")) return;
   const id = e.target.dataset.id;
 
@@ -1021,36 +892,34 @@ document.body.addEventListener("click", async (e) => {
 
     const proj = j.project;
     const rows = j.rows || [];
-
     currentProjectId = proj.id;
 
-    $("#projectName").value   = proj.project_name || "";
+    $("#projectName").value = proj.project_name || "";
     $("#projectStatus").value = proj.status || "Draft";
 
     const firstRow = rows[0] || null;
-    $("#reviewedBy").value    = firstRow?.reviewed_by || "";
+    $("#reviewedBy").value = firstRow?.reviewed_by || "";
 
     const infoEl = $("#reviewedInfo");
-    infoEl.textContent = firstRow?.reviewed_at
-      ? ("Reviewed on: " + new Date(firstRow.reviewed_at).toLocaleString())
-      : "";
+    infoEl.textContent = firstRow?.reviewed_at ? ("Reviewed on: " + new Date(firstRow.reviewed_at).toLocaleString()) : "";
 
     const langs = proj.languages || [];
-    document.querySelectorAll('#langs input[type=checkbox]').forEach(cb => {
-      cb.checked = langs.includes(cb.value);
-    });
+    document.querySelectorAll('#langs input[type=checkbox]').forEach(cb => cb.checked = langs.includes(cb.value));
 
-    // blocks from rows
-    blocks = rows.length ? rows.map(row => ({
-      englishText: row.english_text || "",
-      translations: {
-        "zh-TW": row.zh_tw || "",
-        "zh-CN": row.zh_cn || "",
-        "ja-JP": row.ja_jp || "",
-        "th-TH": row.th_th || "",
-        "vi-VN": row.vi_vn || ""
-      }
-    })) : [makeEmptyBlock()];
+    if (!rows.length) {
+      blocks = [makeEmptyBlock()];
+    } else {
+      blocks = rows.map(row => ({
+        englishText: row.english_text || "",
+        translations: {
+          "zh-TW": row.zh_tw || "",
+          "zh-CN": row.zh_cn || "",
+          "ja-JP": row.ja_jp || "",
+          "th-TH": row.th_th || "",
+          "vi-VN": row.vi_vn || ""
+        }
+      }));
+    }
 
     currentBlockIndex = 0;
     renderBlockTabs();
@@ -1059,6 +928,12 @@ document.body.addEventListener("click", async (e) => {
   } catch (err) {
     alert("Error loading project:\n" + err.message);
   }
+});
+
+/* Init */
+window.addEventListener("load", async () => {
+  await refreshUser();
+  initBlocks();
 });
 </script>
 
